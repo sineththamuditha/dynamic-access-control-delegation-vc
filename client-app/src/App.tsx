@@ -1,11 +1,12 @@
-import React from 'react';
 import './App.css';
+import LogProvider from './context/LogContext';
+import TwoPageView from './pages/TwoPageView';
 
 function App() {
   return (
-    <div className="App">
-      <h1>Hello</h1>
-    </div>
+      <LogProvider>
+        <TwoPageView />
+      </LogProvider>
   );
 }
 
