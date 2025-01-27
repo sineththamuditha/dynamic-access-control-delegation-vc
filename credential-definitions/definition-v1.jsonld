@@ -1,0 +1,8 @@
+{
+    "@context": {
+        "schema": "https://https://schema.org/",
+        "roleName": "schema:roleName",
+        "speciality": "schema:speciality",
+        "licenseNumber": "schema:Text"
+    }
+}
