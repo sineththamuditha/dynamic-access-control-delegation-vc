@@ -1,13 +1,9 @@
 {
     "@context": {
-        "ex": "https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/9f9373c73adefc7b9bb486bbc3c11edcb96481a9/credential-definitions/definition-v1.jsonld",
         "schema": "https://https://schema.org/",
         "roleName": "schema:roleName",
         "speciality": "schema:speciality",
         "licenseNumber": "schema:Text",
-        "department": {
-            "@id": "ex:department",
-            "@type" "ex:Text"
-        }
+        "department": "schema:department"
     }
 }
