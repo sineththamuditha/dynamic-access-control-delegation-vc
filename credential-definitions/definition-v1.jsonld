@@ -7,7 +7,7 @@
         "licenseNumber": "schema:Text",
         "department": {
             "@id": "ex:department",
-            "@type" "schema:Text"
+            "@type" "ex:Text"
         }
     }
 }
