@@ -4,6 +4,6 @@
         "roleName": "schema:roleName",
         "speciality": "schema:speciality",
         "licenseNumber": "schema:Text",
-        "department": "schema:department"
+        "department": "schema:Text"
     }
 }
