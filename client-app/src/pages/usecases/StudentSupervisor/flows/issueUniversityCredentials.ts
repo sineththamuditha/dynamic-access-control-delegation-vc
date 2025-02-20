@@ -1,45 +1,55 @@
-import {
-  universityAgent,
-  getUniversityDID,
-} from "../../../../agents/universityAgent";
+import { IIdentifier, IKey, VerifiableCredential } from "@veramo/core";
+import { didWebAgent } from "../../../../agents/didWebAgent";
 
-export const issueUniversityCredentials = async (studentDID: string, supervisorDID: string) => {
+export const issueUniversityCredentialsForSupervisorAndStudent: (
+  universityIdentifier: IIdentifier,
+  supervisorIdentifier: IIdentifier,
+  studentIdentifier: IIdentifier
+) => Promise<{
+  signedSupervisorVC: VerifiableCredential;
+  signedStudentVC: VerifiableCredential;
+}> = async (
+  universityIdentifier: IIdentifier,
+  supervisorIdentifier: IIdentifier,
+  studentIdentifier: IIdentifier
+) => {
+  // getting the key to sign student & supervisor university credentials
+  const universityKey: IKey | undefined = universityIdentifier.keys.at(0);
 
-  const uninversityDID = await getUniversityDID();
+  if (!universityKey) {
+    throw new Error("Error in retrieving signing keys");
+  }
 
-  const studentUniversityCredential = {
-    "@context": ["https://www.w3.org/2018/credentials/v1"],
-    type: ["VerifiableCredential"],
-    issuer: uninversityDID,
-    issuanceDate: new Date().toISOString(),
-    credentialSubject: {
-      id: studentDID,
-      studentId: "S001",
-      university: "Example University",
-    },
+  return {
+    signedSupervisorVC: await didWebAgent.createVerifiableCredential({
+      credential: {
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        type: ["VerifiableCredential", "UniversityCredential"],
+        issuer: universityIdentifier.did,
+        issuanceDate: new Date().toISOString(),
+        credentialSubject: {
+          id: supervisorIdentifier.did,
+          lecturerId: "L025",
+          university: "University of Colombo",
+        },
+      },
+      proofFormat: "jwt",
+      keyRef: universityKey.kid,
+    }),
+    signedStudentVC: await didWebAgent.createVerifiableCredential({
+      credential: {
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        type: ["VerifiableCredential", "UniversityCredential"],
+        issuer: universityIdentifier.did,
+        issuanceDate: new Date().toISOString(),
+        credentialSubject: {
+          id: studentIdentifier.did,
+          studentId: "S001",
+          university: "University of Colombo",
+        },
+      },
+      proofFormat: "jwt",
+      keyRef: universityKey.kid,
+    }),
   };
-
-  const signedStudentVC = await universityAgent.createVerifiableCredential({
-    credential: studentUniversityCredential,
-    proofFormat: "jwt",
-  });
-
-  const supervisorUniversityCredential = {
-    "@context": ["https://www.w3.org/2018/credentials/v1"],
-    type: ["VerifiableCredential"],
-    issuer: uninversityDID,
-    issuanceDate: new Date().toISOString(),
-    credentialSubject: {
-      id: supervisorDID,
-      lecturerId: "L025",
-      university: "Example University",
-    },
-  };
-
-  const signedSupervisorVC = await universityAgent.createVerifiableCredential({
-    credential: supervisorUniversityCredential,
-    proofFormat: 'jwt'
-  })
-
-  return { signedSupervisorVC, signedStudentVC };
 };

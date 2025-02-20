@@ -1,26 +1,32 @@
-import { libraryAgent, getLibraryDID } from "../../../../agents/libraryAgent";
+import { IIdentifier, IKey, VerifiableCredential } from "@veramo/core";
+import { didWebAgent } from "../../../../agents/didWebAgent";
 
-export const issueLibrarySubscription = async (supervisorDID: string) => {
-  const libraryDID: string = await getLibraryDID();
+export const issueLibraryCredentialForSupervisor: (
+  supervisorDIDIdentifier: IIdentifier,
+  libraryDIDIdentifier: IIdentifier
+) => Promise<VerifiableCredential> = async (
+  supervisorDIDIdentifier: IIdentifier,
+  libraryDIDIdentifier: IIdentifier
+) => {
+  const libraryKey: IKey | undefined = libraryDIDIdentifier.keys.at(0);
 
-  const libraryCrdential = {
-    issuer: libraryDID,
-    type: ["VerifiableCredential", "LibrarySubscriptionCredential"],
-    credentialSubject: {
-      id: supervisorDID,
-      subscriptionType: "Premium",
-      validUntil: "2025-12-31",
+  if (!libraryKey) {
+    throw new Error("Error in retrieving signing keys");
+  }
+
+  return await didWebAgent.createVerifiableCredential({
+    credential: {
+      "@context": ["https://www.w3.org/2018/credentials/v1"],
+      issuer: libraryDIDIdentifier.did,
+      type: ["VerifiableCredential", "LibrarySubscriptionCredential"],
+      credentialSubject: {
+        id: supervisorDIDIdentifier.did,
+        subscriptionType: "Premium",
+        validUntil: "2025-12-31",
+      },
+      issuanceDate: new Date().toISOString(),
     },
-  };
-
-  const signedLibraryCredential = await libraryAgent.createVerifiableCredential(
-    {
-      credential: libraryCrdential,
-      proofFormat: "jwt",
-    }
-  );
-
-  console.log("Library credential ", signedLibraryCredential);
-
-  return signedLibraryCredential;
+    proofFormat: "jwt",
+    keyRef: libraryKey.kid,
+  });
 };

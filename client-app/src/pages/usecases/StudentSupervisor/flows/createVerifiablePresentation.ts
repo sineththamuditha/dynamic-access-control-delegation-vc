@@ -1,20 +1,27 @@
-import { studentAgent } from "../../../../agents/studentAgent";
+import { IIdentifier, IKey, VerifiableCredential } from "@veramo/core";
+import { didWebAgent } from "../../../../agents/didWebAgent";
 
 export const createVerifiablePresentationForLibrary = async (
-  studentDID: string,
-  studentUniversityCredential: any,
-  delegatedLibrarySubscription: any
+  supervisorDIDIdentifier: IIdentifier,
+  librarySubscriptionCredential: VerifiableCredential
 ) => {
+
+  const delegatedStudentKey: IKey | undefined = supervisorDIDIdentifier.keys.at(1);
+  
+  if (!delegatedStudentKey) {
+    throw new Error("Error in retrieving signing keys");
+  }
+
   const verifiablePresentation =
-    await studentAgent.createVerifiablePresentation({
+    await didWebAgent.createVerifiablePresentation({
       presentation: {
-        holder: studentDID,
+        holder: supervisorDIDIdentifier.did,
         verifiableCredential: [
-          studentUniversityCredential,
-          delegatedLibrarySubscription,
+          librarySubscriptionCredential,
         ],
       },
       proofFormat: "jwt",
+      keyRef: delegatedStudentKey.kid
     });
 
   return verifiablePresentation;

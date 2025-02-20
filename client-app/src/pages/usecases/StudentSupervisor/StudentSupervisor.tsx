@@ -1,133 +1,194 @@
 import React, { useContext, useEffect, useState } from "react";
 import { LogContext } from "../../../context/LogContext";
-import { issueUniversityCredentials } from "./flows/issueUniversityCredentials";
-import { JsonView, allExpanded, darkStyles } from "react-json-view-lite";
+import { issueUniversityCredentialsForSupervisorAndStudent } from "./flows/issueUniversityCredentials";
+import { JsonView } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
-
-import { getStudentDID } from "../../../agents/studentAgent";
-import { getSupervisorDID } from "../../../agents/supervisorAgent";
-import { issueLibrarySubscription } from "./flows/issueLibrarySubscription";
-import { delegateLibrarySubscription } from "./flows/delegateLibrarySubscription";
+import { issueLibraryCredentialForSupervisor } from "./flows/issueLibrarySubscription";
+import { delegateUsingDIDDocument } from "./flows/delegateUsingDIDDocument";
 import { createVerifiablePresentationForLibrary } from "./flows/createVerifiablePresentation";
 import { verifyVerifiablePresentation } from "./flows/verifyVerifiablePresentation";
+import JsonViewProvider from "../../../context/JsonViewContext";
+import { PageContext } from "../../../context/PageContext";
+import { Page } from "../../../enums/PageEnum";
+import { CONFIG } from "../../../constants";
+import {
+  IIdentifier,
+  VerifiableCredential,
+  VerifiablePresentation,
+} from "@veramo/core";
+import { getDidFor } from "../../../agents/didWebAgent";
 
 const StudentSupervisor: React.FC = () => {
-  const [dids, setDID] = useState<{ [key: string]: string }>({});
-  const [storedVCs, setStoredVcs] = useState<{ [key: string]: any }>([]);
+  const [didIdentifiers, setDIDIdentifiers] = useState<{
+    [key: string]: IIdentifier;
+  }>({});
+  const [storedVCs, setStoredVcs] = useState<{
+    [key: string]: VerifiableCredential;
+  }>({});
+  const [verifiablePresentation, setVerifiablePresentation] =
+    useState<VerifiablePresentation>();
   const { addLog, clearLogs } = useContext(LogContext);
+  const [json, setJson] = useState<any>({});
+  const { setPage } = useContext(PageContext);
+
+  const STUDENT: string = "student";
+  const SUPERVISOR: string = "supervisor";
+  const UNIVERSITY: string = "university";
+  const LIBRARY: string = "LIBRARY";
+
+  const STUDENT_DID_IDENTIFIER_KEY: string = "studentDIDIdentifier";
+  const SUPERVISOR_DID_IDENTIFIER_KEY: string = "supervisorDIDIdentifier";
+  const UNIVERSITY_DID_IDENTIFIER_KEY: string = "universityDIDIdentifier";
+  const LIBRARY_DID_IDENTIFIER_KEY: string = "libraryDIDIdentifier";
+
+  const STUDENT_UNIVERSITY_VC_KEY: string = "studentUniversityVCKey";
+  const SUPERVISOR_UNIVERSITY_VC_KEY: string = "supervisorUniversityVCKey";
+  const SUPERVISOR_LIBRARY_VC_KEY: string = "supervisorLibraryVCKey";
 
   useEffect(() => {
-    getStudentDID().then((studentDID) => {
-      setDID((prevJsonObject) => ({
-        ...prevJsonObject,
-        studentDID: studentDID,
+    getDidFor(SUPERVISOR).then((supervisorDID: IIdentifier) => {
+      setDIDIdentifiers((prevDidIdentifiers) => ({
+        ...prevDidIdentifiers,
+        [SUPERVISOR_DID_IDENTIFIER_KEY]: supervisorDID,
       }));
     });
 
-    getSupervisorDID().then((supervisorDID) => {
-      setDID((prevJsonObject) => ({
-        ...prevJsonObject,
-        supervisorDID: supervisorDID,
+    getDidFor(STUDENT).then((studentDID: IIdentifier) => {
+      setDIDIdentifiers((prevDidIdentifiers) => ({
+        ...prevDidIdentifiers,
+        [STUDENT_DID_IDENTIFIER_KEY]: studentDID,
+      }));
+    });
+
+    getDidFor(UNIVERSITY).then((universityDID: IIdentifier) => {
+      setDIDIdentifiers((prevDidIdentifiers) => ({
+        ...prevDidIdentifiers,
+        [UNIVERSITY_DID_IDENTIFIER_KEY]: universityDID,
+      }));
+    });
+
+    getDidFor(LIBRARY).then((libraryDID: IIdentifier) => {
+      setDIDIdentifiers((prevDidIdentifiers) => ({
+        ...prevDidIdentifiers,
+        [LIBRARY_DID_IDENTIFIER_KEY]: libraryDID,
       }));
     });
   }, []);
 
-  const issueCredential = async () => {
+  const goBackToMainPage = () => {
+    setPage(Page.MAIN_PAGE);
+  };
+
+  const issueUniversityCredentials = async () => {
     const { signedSupervisorVC, signedStudentVC } =
-      await issueUniversityCredentials(
-        dids["studentDID"],
-        dids["supervisorDID"]
+      await issueUniversityCredentialsForSupervisorAndStudent(
+        didIdentifiers[UNIVERSITY_DID_IDENTIFIER_KEY],
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY]
       );
+
     setStoredVcs((prevVCs) => ({
       ...prevVCs,
-      supervisorUniversityVC: signedSupervisorVC,
-      studentUniversityVC: signedStudentVC,
+      [SUPERVISOR_UNIVERSITY_VC_KEY]: signedSupervisorVC,
+      [STUDENT_UNIVERSITY_VC_KEY]: signedStudentVC,
     }));
+
+    setJson({
+      [SUPERVISOR_UNIVERSITY_VC_KEY]: signedSupervisorVC,
+      [STUDENT_UNIVERSITY_VC_KEY]: signedStudentVC,
+    });
+
     addLog(
       "University credentials for supervisor and the student has been granted"
     );
-
-    const { signedLibraryVC } = await issueLibrarySubscription(
-      dids["supervisorDID"]
-    );
-
-    setStoredVcs((prevVCs) => ({
-      ...prevVCs,
-      supervisorLibraryVC: signedLibraryVC,
-    }));
-
-    addLog("Library subscription for the supervisor has been granted");
   };
 
-  const delegateLibraryCredential = async () => {
-    const delegatedPresentation = await delegateLibrarySubscription(
-      dids["supervisorDID"],
-      dids["studentDID"],
-      storedVCs["supervisorLibraryVC"]
-    );
+  const issueLibraryCredential = async () => {
+    const supervisorLibraryCredential =
+      await issueLibraryCredentialForSupervisor(
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[LIBRARY_DID_IDENTIFIER_KEY]
+      );
 
     setStoredVcs((prevVCs) => ({
       ...prevVCs,
-      delegatedLibraryPresentation: delegatedPresentation,
+      [SUPERVISOR_LIBRARY_VC_KEY]: supervisorLibraryCredential,
     }));
 
-    addLog("Library subscription delegated");
+    setJson(supervisorLibraryCredential);
+
+    addLog("Library subscription credentials for supervisor has been granted");
+  };
+
+  const delegateAccessUsingDIDDocument = async () => {
+    setJson(
+      await delegateUsingDIDDocument(
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY]
+      )
+    );
+
+    addLog("Access for did document of the supervisor is delegated to student");
   };
 
   const createVerifiablePresentation = async () => {
-    const verifiablePresentation = await createVerifiablePresentationForLibrary(
-      dids["studentDID"],
-      storedVCs["studentUniversityVC"],
-      storedVCs["delegatedLibraryPresentation"]
-    );
+    const libraryVerifiablePresentation: VerifiablePresentation =
+      await createVerifiablePresentationForLibrary(
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        storedVCs[SUPERVISOR_LIBRARY_VC_KEY]
+      );
 
-    console.log(verifiablePresentation);
+    setVerifiablePresentation(libraryVerifiablePresentation);
 
-    setStoredVcs((prevVCs) => ({
-      ...prevVCs,
-      libraryVerifiablePresentation: verifiablePresentation,
-    }));
+    setJson(libraryVerifiablePresentation);
 
-    addLog("Verifiable Presentation for the library has been created ....");
+    addLog("Library verifiable presentation created");
   };
 
-  const verifyVerifiablePresentationForLibrary = async (
-    verifiablePresentation: any
-  ) => {
-    const verificationResult = await verifyVerifiablePresentation(
-      verifiablePresentation
-    );
+  const verifyVerifiablePresentationForLibrary = async () => {
+    addLog("Verifying library verifiable presentation...");
 
-    // addLog(verificationResult)
+    setJson(await verifyVerifiablePresentation(verifiablePresentation));
+
+    addLog(
+      "Verifible presentation verification results is present at the console"
+    );
   };
 
   return (
-    <div>
-      <button onClick={async () => await issueCredential()}>
-        Issue credentials
-      </button>
-      <button onClick={async () => await delegateLibraryCredential()}>
-        Delegate library credential
-      </button>
-      <button onClick={async () => await createVerifiablePresentation()}>
-        Create verifiable presentation
-      </button>
-      <button
-        onClick={async () =>
-          await verifyVerifiablePresentationForLibrary(
-            storedVCs["libraryVerifiablePresentation"]
-          )
-        }
-      >
-        Present credentials
-      </button>
-      <button onClick={clearLogs}>Clear Terminal</button>
-      <JsonView
-        data={storedVCs[storedVCs.length - 1]}
-        shouldExpandNode={allExpanded}
-        style={darkStyles}
-      />
-    </div>
+    <JsonViewProvider children={undefined}>
+      <div className="upper">
+        <div className="left-section">
+          <button onClick={async () => await issueUniversityCredentials()}>
+            Issue University Credentials For Supervisor And Student
+          </button>
+          <button onClick={async () => await issueLibraryCredential()}>
+            Issue Library Credential For Supervisor
+          </button>
+          <button onClick={async () => await delegateAccessUsingDIDDocument()}>
+            Delegate Access Using DID Document
+          </button>
+          <button onClick={async () => await createVerifiablePresentation()}>
+            Create Verifiable Presentation
+          </button>
+          <button
+            onClick={async () => await verifyVerifiablePresentationForLibrary()}
+          >
+            Present credentials
+          </button>
+          <button onClick={clearLogs}>Clear Terminal</button>
+          <button onClick={goBackToMainPage}>Go Back To Main Page</button>
+        </div>
+
+        <div className="right-section">
+          <JsonView
+            data={json}
+            clickToExpandNode
+            style={CONFIG.JSON_VIEW_STYLE_PROPS}
+          />
+        </div>
+      </div>
+    </JsonViewProvider>
   );
 };
 

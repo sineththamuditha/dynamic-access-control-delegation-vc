@@ -1,13 +1,17 @@
-import { libraryAgent } from "../../../../agents/libraryAgent";
+import { didWebAgent } from "../../../../agents/didWebAgent";
 
-export const verifyVerifiablePresentation = async (verifiabllePresentationForLibrary: any) => {
 
-    const verificationResult = await libraryAgent.verifyPresentation({
-        presentation: verifiabllePresentationForLibrary,
-        fetchRemoteContexts: false
-    });
+export const verifyVerifiablePresentation = async (
+  verifiabllePresentationForLibrary: any
+) => {
+  console.log(verifiabllePresentationForLibrary);
 
-    console.log(verificationResult);
+  const verificationResult = await didWebAgent.verifyPresentation({
+    presentation: verifiabllePresentationForLibrary,
+    fetchRemoteContexts: false,
+  });
 
-    return verificationResult;
+  console.log(verificationResult);
+
+  return verificationResult;
 };

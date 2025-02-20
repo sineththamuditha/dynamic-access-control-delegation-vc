@@ -1,12 +1,18 @@
-import './App.css';
-import LogProvider from './context/LogContext';
-import TwoPageView from './pages/TwoPageView';
+import "./App.css";
+import DIDStoreProvider from "./context/didStore";
+import LogProvider from "./context/LogContext";
+import PageProvider from "./context/PageContext";
+import TwoPageView from "./pages/TwoPageView";
 
 function App() {
   return (
-      <LogProvider>
-        <TwoPageView />
-      </LogProvider>
+    <LogProvider>
+      <PageProvider>
+        <DIDStoreProvider>
+          <TwoPageView />
+        </DIDStoreProvider>
+      </PageProvider>
+    </LogProvider>
   );
 }
 

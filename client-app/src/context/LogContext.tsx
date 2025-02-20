@@ -15,6 +15,7 @@ export const LogContext = React.createContext<LogContextType>({
 interface LogProviderProps {
   children: ReactNode;
 }
+
 const LogProvider: React.FC<LogProviderProps> = ({ children }) => {
   const [logs, setLogs] = useState<string[]>([]);
 
