@@ -16,6 +16,10 @@
         "department": {
             "@id": "vcDelegationVocab:department",
             "@type": "xsd:string"
+        },
+        "testAttribute": {
+            "@id": "vcDelegationVocab:testAttribute",
+            "@type": "xsd:string"
         }
     }
 }
