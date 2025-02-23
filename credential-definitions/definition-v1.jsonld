@@ -1,39 +1,49 @@
 {
-    "@context": {
-        "vcDelegationVocab": "https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
-        "roleName": {
-            "@id": "vcDelegationVocab:roleName",
-            "@type": "xsd:string"
-        },
-        "speciality": {
-            "@id": "vcDelegationVocab:speciality",
-            "@type": "xsd:string"
-        },
-        "licenseNumber": {
-            "@id": "vcDelegationVocab:licenseNumber",
-            "@type": "xsd:string"
-        },
-        "department": {
-            "@id": "vcDelegationVocab:department",
-            "@type": "xsd:string"
-        },
-        "attributes": {
-            "@id": "vcDelegationVocab:attributes"
-        },
-        "isHospitalEmployee": {
-            "@id": "vcDelegationVocab:isHospitalEmployee",
-            "@type": "xsd:boolean"
-        },
-        "service": {
-            "@id": "vcDelegationVocab:service"
-        },
-        "serviceEndpoint": {
-            "@id": "vcDelegationVocab:serviceEndpoint",
-            "@type": "xsd:anyURI"
-        },
-        "type": {
-            "@id": "vcDelegationVocab:type",
-            "@type": "xsd:string"
-        }        
+    "@context":{
+       "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
+       "roleName":{
+          "@id":"vcDelegationVocab:roleName",
+          "@type":"xsd:string"
+       },
+       "speciality":{
+          "@id":"vcDelegationVocab:speciality",
+          "@type":"xsd:string"
+       },
+       "licenseNumber":{
+          "@id":"vcDelegationVocab:licenseNumber",
+          "@type":"xsd:string"
+       },
+       "department":{
+          "@id":"vcDelegationVocab:department",
+          "@type":"xsd:string"
+       },
+       "attributes":{
+          "@id":"vcDelegationVocab:attributes",
+          "@context":{
+             "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
+             "isHospitalEmployee":{
+                "@id":"vcDelegationVocab:isHospitalEmployee",
+                "@type":"xsd:boolean"
+             }
+          }
+       },
+       "isHospitalEmployee":{
+          "@id":"vcDelegationVocab:isHospitalEmployee",
+          "@type":"xsd:boolean"
+       },
+       "service":{
+          "@id":"vcDelegationVocab:service",
+          "@context":{
+             "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
+             "serviceEndpoint":{
+                "@id":"vcDelegationVocab:serviceEndpoint",
+                "@type":"xsd:anyURI"
+             },
+             "type":{
+                "@id":"vcDelegationVocab:type",
+                "@type":"xsd:string"
+             }
+          }
+       }
     }
-}
+ }
