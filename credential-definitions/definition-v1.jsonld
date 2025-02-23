@@ -18,16 +18,14 @@
             "@type": "xsd:string"
         },
         "attributes": {
-            "@id": "vcDelegationVocab:attributes",
-            "@type": "@id"
+            "@id": "vcDelegationVocab:attributes"
         },
         "isHospitalEmployee": {
             "@id": "vcDelegationVocab:isHospitalEmployee",
             "@type": "xsd:boolean"
         },
         "service": {
-            "@id": "vcDelegationVocab:service",
-            "@type": "@id"
+            "@id": "vcDelegationVocab:service"
         },
         "serviceEndpoint": {
             "@id": "vcDelegationVocab:serviceEndpoint",
