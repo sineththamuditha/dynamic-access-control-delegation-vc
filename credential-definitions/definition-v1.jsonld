@@ -18,21 +18,24 @@
             "@type": "xsd:string"
         },
         "attributes": {
-            "isHospitalEmployee": {
-                "@id": "vcDelegationVocab:isHospitalEmployee",
-                "@type": "xsd:boolean"
-            }
+            "@id": "vcDelegationVocab:attributes",
+            "@type": "@id"
+        },
+        "isHospitalEmployee": {
+            "@id": "vcDelegationVocab:isHospitalEmployee",
+            "@type": "xsd:boolean"
         },
         "service": {
-            "serviceEndpoint": {
-                "@id": "vcDelegationVocab:serviceEndpoint",
-                "@type": "xsd:anyURI"
-            },
-            "type": {
-                "@id": "vcDelegationVocab:type",
-                "@type": "xsd:string"
-            }
-        }
-        
+            "@id": "vcDelegationVocab:service",
+            "@type": "@id"
+        },
+        "serviceEndpoint": {
+            "@id": "vcDelegationVocab:serviceEndpoint",
+            "@type": "xsd:anyURI"
+        },
+        "type": {
+            "@id": "vcDelegationVocab:type",
+            "@type": "xsd:string"
+        }        
     }
 }
