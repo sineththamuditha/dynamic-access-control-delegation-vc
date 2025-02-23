@@ -1,6 +1,7 @@
 {
    "@context":{
       "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
+      "cred": "https://www.w3.org/2018/credentials#",
       "roleName":{
          "@id":"vcDelegationVocab:roleName",
          "@type":"xsd:string"
@@ -47,7 +48,6 @@
       }
    },
    "credentialSubject":{
-      "cred": "https://www.w3.org/2018/credentials#",
       "@id": "cred:credentialSubject",
       "@context":{
          "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
