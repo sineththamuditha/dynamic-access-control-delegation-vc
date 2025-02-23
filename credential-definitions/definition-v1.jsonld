@@ -47,7 +47,8 @@
       }
    },
    "credentialSubject":{
-      "@id":"vcDelegationVocab:credentialSubject",
+      "cred": "https://www.w3.org/2018/credentials#",
+      "@id": "cred:credentialSubject",
       "@context":{
          "vcDelegationVocab":"https://raw.githubusercontent.com/sineththamuditha/dynamic-access-control-delegation-vc/refs/heads/main/credential-definitions/definition-v1.jsonld",
          "credentialId":{
