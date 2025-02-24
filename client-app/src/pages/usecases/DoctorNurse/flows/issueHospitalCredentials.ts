@@ -1,4 +1,4 @@
-import { CredentialPayload, VerifiableCredential } from "@veramo/core";
+import { VerifiableCredential } from "@veramo/core";
 import { createVerifiableCredential } from "../apis/credentialClient/credentialCreation";
 import { CONFIG } from "../../../../constants";
 
@@ -25,7 +25,7 @@ export const issueHospitalVerifiableCredentials = async (
         licenseNumber: "SURG7891011",
       },
       id: "urn:uuid:" +  crypto.randomUUID(),
-      type: ["VerifiableCredential"],
+      type: ["VerifiableCredential", "HospitalCredential"],
     }), 
     nurseVC: await createVerifiableCredential({
       "@context": [
@@ -42,7 +42,7 @@ export const issueHospitalVerifiableCredentials = async (
         licenseNumber: "NURSE8945345",
       },
       id: "urn:uuid:" +  crypto.randomUUID(),
-      type: ["VerifiableCredential"],
+      type: ["VerifiableCredential", "HospitalCredential"],
     })
   };
 };

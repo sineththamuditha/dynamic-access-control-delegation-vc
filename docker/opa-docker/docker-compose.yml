@@ -1,0 +1,17 @@
+
+services:
+  opa:
+    image: openpolicyagent/opa:1.1.0-istio-6-static
+    platform: linux/arm64
+    container_name: opa-server
+    ports:
+      - "8181:8181"
+    command:
+      - "run"
+      - "--server"
+      - "--log-level=debug"
+      - "--addr=http://0.0.0.0:8181"
+      - "/policies"
+    volumes:
+      - "./policies:/policies"
+    restart: unless-stopped

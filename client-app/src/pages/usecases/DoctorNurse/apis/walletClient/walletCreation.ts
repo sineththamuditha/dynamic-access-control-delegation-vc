@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import ariesCloudAgentApiClient from "../../../../../configs/axiosConfig";
+import { ariesCloudAgentApiClient } from "../../../../../configs/axiosConfig";
 import { WalletCreationRequest } from "../../dtos/WalletCreationRequest";
 import { WalletCreationResponse } from "../../dtos/WalletCreationResponse";
 import { Wallet } from "../../models/wallet";

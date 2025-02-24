@@ -8,7 +8,8 @@ export const validateEnv = (): void => {
       'REACT_APP_S3_BUCKET_SECRET_ACCESS_KEY',
       'REACT_APP_S3_BUCKET_BASE_URL',
       'REACT_APP_S3_BUCKET_NAME',
-      'REACT_APP_WEB_DID_BASIC_URL'
+      'REACT_APP_WEB_DID_BASIC_URL',
+      'REACT_APP_SERVICE_ENDPOINT_BASE_URL',
     ];
     
     const missingVars = requiredEnvVars.filter((key) => !process.env[key]);

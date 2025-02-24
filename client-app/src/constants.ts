@@ -15,6 +15,7 @@ interface EnvConfig {
     S3_BUCKET_BASE_URL: string;
     S3_BUCKET_NAME: string;
     WEB_DID_BASIC_URL: string;
+    SERVICE_ENDPOINT_BASE_URL: string;
 }
 
 export const CONFIG : EnvConfig = {
@@ -34,5 +35,6 @@ export const CONFIG : EnvConfig = {
     },
     S3_BUCKET_BASE_URL: process.env.REACT_APP_S3_BUCKET_BASE_URL || "",
     S3_BUCKET_NAME: process.env.REACT_APP_S3_BUCKET_NAME || "",
-    WEB_DID_BASIC_URL: process.env.REACT_APP_WEB_DID_BASIC_URL || ""
+    WEB_DID_BASIC_URL: process.env.REACT_APP_WEB_DID_BASIC_URL || "",
+    SERVICE_ENDPOINT_BASE_URL: process.env.REACT_APP_SERVICE_ENDPOINT_BASE_URL || "",
 }

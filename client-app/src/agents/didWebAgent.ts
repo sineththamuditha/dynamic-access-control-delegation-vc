@@ -16,7 +16,26 @@ export const getDidFor: (name: string) => Promise<IIdentifier> = async (name: st
 
   keyOfTheUser &&
     uploadDidDocument(
-      "university",
+      name,
+      createDIDDocument(identifier.did, {
+        [identifier.did]: keyOfTheUser,
+      })
+    );
+
+    return identifier;
+};
+
+export const getDidProtocolFor: (name: string) => Promise<IIdentifier> = async (name: string) => {
+  const identifier = await didWebAgent.didManagerGetOrCreate({
+    provider: "did:web",
+    alias: `${CONFIG.WEB_DID_BASIC_URL}:protocol:${name}`,
+  });
+
+  const keyOfTheUser = identifier.keys.at(0);
+
+  keyOfTheUser &&
+    uploadDidDocument(
+      `protocol/${name}`,
       createDIDDocument(identifier.did, {
         [identifier.did]: keyOfTheUser,
       })

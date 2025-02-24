@@ -28,17 +28,17 @@ const DoctorNurse: React.FC = () => {
 
   const [storedCredentialIds, setStoredCredentialIds] = useState< {[key:string]: string}>({});
 
-  const hospitalDIDKey: string = "hospitalDID";
-  const doctorDIDKey: string = "doctorDID";
-  const nurseDIDKey: string = "nurseDID";
+  const HOSPITAL_DID_KEY: string = "hospitalDID";
+  const DOCTOR_DID_KEY: string = "doctorDID";
+  const NURSE_DID_KEY: string = "nurseDID";
 
-  const hospitalWalletKey: string = "hospitalWallet";
-  const doctorWalletKey: string = "doctorWallet";
-  const nurseWalletKey: string = "nurseWallet";
+  const HOSPITAL_WALLET_KEY: string = "hospitalWallet";
+  const DOCTOR_WALLET_KEY: string = "doctorWallet";
+  const NURSE_WALLET_KEY: string = "nurseWallet";
 
-  const doctorHospitalCredentialIdKey: string = "doctorHospitalCredentialId";
-  const nurseHospitalCredentialIdKey: string = "nurseHospitalCredentialId";
-  const delegatedDoctorCredentialKey: string = "delegatedDoctorCredentialId";
+  const DOCTOR_HOSPITAL_CREDENTIAL_ID_KEY: string = "doctorHospitalCredentialId";
+  const NURSE_HOSPITAL_CREDENTIAL_ID_KEY: string = "nurseHospitalCredentialId";
+  const DELEGATED_DOCTOR_CREDENTIAL_ID_KEY: string = "delegatedDoctorCredentialId";
 
   const addWallet: (key: string, wallet: Wallet) => void = (
     key: string,
@@ -65,53 +65,53 @@ const DoctorNurse: React.FC = () => {
   }
 
   useEffect(() => {
-    if (hasDID(hospitalDIDKey)) {
-      retrieveWallet(dids[hospitalDIDKey]).then((hospitalWallet) => {
-        addWallet(hospitalWalletKey, hospitalWallet);
-        addDID(hospitalDIDKey, hospitalWallet.did);
+    if (hasDID(HOSPITAL_DID_KEY)) {
+      retrieveWallet(dids[HOSPITAL_DID_KEY]).then((hospitalWallet) => {
+        addWallet(HOSPITAL_WALLET_KEY, hospitalWallet);
+        addDID(HOSPITAL_DID_KEY, hospitalWallet.did);
       });
     } else {
       createWallet().then((nullableHospitalWallet) => {
         const hospitalWallet: Wallet = nullableHospitalWallet as Wallet;
-        addWallet(hospitalWalletKey, hospitalWallet);
-        addDID(hospitalDIDKey, hospitalWallet.did);
+        addWallet(HOSPITAL_WALLET_KEY, hospitalWallet);
+        addDID(HOSPITAL_DID_KEY, hospitalWallet.did);
       });
     }
 
-    if (hasDID(doctorDIDKey)) {
-      retrieveWallet(dids[doctorDIDKey]).then((doctorWallet) => {
-        addWallet(doctorWalletKey, doctorWallet);
-        addDID(doctorDIDKey, doctorWallet.did);
+    if (hasDID(DOCTOR_DID_KEY)) {
+      retrieveWallet(dids[DOCTOR_DID_KEY]).then((doctorWallet) => {
+        addWallet(DOCTOR_WALLET_KEY, doctorWallet);
+        addDID(DOCTOR_DID_KEY, doctorWallet.did);
       });
     } else {
       createWallet().then((nullableDoctorWallet) => {
         const doctorWallet: Wallet = nullableDoctorWallet as Wallet;
-        addWallet(doctorWalletKey, doctorWallet);
-        addDID(doctorDIDKey, doctorWallet.did);
+        addWallet(DOCTOR_WALLET_KEY, doctorWallet);
+        addDID(DOCTOR_DID_KEY, doctorWallet.did);
       });
     }
 
-    if (hasDID(nurseDIDKey)) {
-      retrieveWallet(dids[nurseDIDKey]).then((nurseWallet) => {
-        addWallet(nurseWalletKey, nurseWallet);
-        addDID(nurseDIDKey, nurseWallet.did);
+    if (hasDID(NURSE_DID_KEY)) {
+      retrieveWallet(dids[NURSE_DID_KEY]).then((nurseWallet) => {
+        addWallet(NURSE_WALLET_KEY, nurseWallet);
+        addDID(NURSE_DID_KEY, nurseWallet.did);
       });
     } else {
       createWallet().then((nullableNurseWallet) => {
         const nurseWallet: Wallet = nullableNurseWallet as Wallet;
-        addWallet(nurseWalletKey, nurseWallet);
-        addDID(nurseDIDKey, nurseWallet.did);
+        addWallet(NURSE_WALLET_KEY, nurseWallet);
+        addDID(NURSE_DID_KEY, nurseWallet.did);
       });
     }
   }, []);
 
   const issueHospitalCredentials = async () => {
-    const {doctorVC, nurseVC} = await issueHospitalVerifiableCredentials(dids[hospitalDIDKey], dids[doctorDIDKey], dids[nurseDIDKey]);
+    const {doctorVC, nurseVC} = await issueHospitalVerifiableCredentials(dids[HOSPITAL_DID_KEY], dids[DOCTOR_DID_KEY], dids[NURSE_DID_KEY]);
 
     const storedIds: string[] = await storeCredentials([doctorVC, nurseVC]);
 
-    addStoredCredential(doctorHospitalCredentialIdKey, storedIds[0]);
-    addStoredCredential(nurseHospitalCredentialIdKey, storedIds[1]);
+    addStoredCredential(DOCTOR_HOSPITAL_CREDENTIAL_ID_KEY, storedIds[0]);
+    addStoredCredential(NURSE_HOSPITAL_CREDENTIAL_ID_KEY, storedIds[1]);
 
     setJson({
       doctorHospitalVC: doctorVC,
@@ -123,7 +123,7 @@ const DoctorNurse: React.FC = () => {
 
   const delegateDoctorCredential = async () => {
 
-    const delegatedVC: VerifiableCredential |  null = await delegateDoctorVerifiableCredential( dids[nurseDIDKey], dids[doctorDIDKey]);
+    const delegatedVC: VerifiableCredential |  null = await delegateDoctorVerifiableCredential( dids[NURSE_DID_KEY], dids[DOCTOR_DID_KEY]);
 
     if (!delegatedVC) {
       throw new Error("Error in creating delegated credential")
@@ -131,7 +131,7 @@ const DoctorNurse: React.FC = () => {
 
     const storedIds: string[] = await storeCredentials([delegatedVC]);
 
-    addStoredCredential(delegatedDoctorCredentialKey, storedIds[0])
+    addStoredCredential(DELEGATED_DOCTOR_CREDENTIAL_ID_KEY, storedIds[0])
 
     setJson(delegatedVC)
 
@@ -140,17 +140,17 @@ const DoctorNurse: React.FC = () => {
 
   const presentVerifiablePresentation = async () => {
 
-    const verifiablePresentation: VerifiablePresentation | null = await createPresentation(
+    const verifiablePresentation: VerifiablePresentation | undefined = await createPresentation(
       {
         presentation: {
           "@context": [
             "https://www.w3.org/2018/credentials/v1"
           ],
           type: ["VerifiablePresentation"],
-          holder: dids[nurseDIDKey],
+          holder: dids[NURSE_DID_KEY],
           verifiableCredential: [
-            await fetchCredential(storedCredentialIds[delegatedDoctorCredentialKey]),
-            await fetchCredential(storedCredentialIds[nurseHospitalCredentialIdKey])
+            await fetchCredential(storedCredentialIds[DELEGATED_DOCTOR_CREDENTIAL_ID_KEY]),
+            await fetchCredential(storedCredentialIds[NURSE_HOSPITAL_CREDENTIAL_ID_KEY])
           ]
         },
         options: {
@@ -173,7 +173,7 @@ const DoctorNurse: React.FC = () => {
   }
 
   return (
-    <JsonViewProvider children={undefined}>
+    <JsonViewProvider >
       <div className="upper">
         <div className="left-section">
           <button onClick={issueHospitalCredentials}>Issue credentials</button>

@@ -1,6 +1,6 @@
-/Users/sineththamuditha/Documents/dynamic-access-control-delegation-vc/hyperledger/von-network/manage start
+../hyperledger/von-network/manage start
 
-./hyperledger/acapy/scripts/run_docker start \
+../hyperledger/acapy/scripts/run_docker start \
     --inbound-transport http 0.0.0.0 8000 \
     --outbound-transport http \
     --genesis-url http://host.docker.internal:9000/genesis \
@@ -12,4 +12,4 @@
     --auto-provision \
     --log-level info
 
-/Users/sineththamuditha/Documents/dynamic-access-control-delegation-vc/hyperledger/von-network/manage stop
+../hyperledger/von-network/manage stop
