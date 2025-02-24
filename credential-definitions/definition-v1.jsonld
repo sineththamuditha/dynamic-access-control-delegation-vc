@@ -44,10 +44,6 @@
                 "@type":"xsd:string"
              }
           }
-       },
-       "credentialId": {
-        "@id": "vcDelegationVocab:credentialId",
-        "@type": "xsd:string"
        }
     }
  }

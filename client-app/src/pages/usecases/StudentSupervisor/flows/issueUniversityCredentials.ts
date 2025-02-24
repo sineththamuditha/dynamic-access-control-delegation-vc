@@ -27,6 +27,7 @@ export const issueUniversityCredentialsForSupervisorAndStudent: (
         type: ["VerifiableCredential", "UniversityCredential"],
         issuer: universityIdentifier.did,
         issuanceDate: new Date().toISOString(),
+        id: crypto.randomUUID(),
         credentialSubject: {
           id: supervisorIdentifier.did,
           lecturerId: "L025",
@@ -42,6 +43,7 @@ export const issueUniversityCredentialsForSupervisorAndStudent: (
         type: ["VerifiableCredential", "UniversityCredential"],
         issuer: universityIdentifier.did,
         issuanceDate: new Date().toISOString(),
+        id: crypto.randomUUID(),
         credentialSubject: {
           id: studentIdentifier.did,
           studentId: "S001",

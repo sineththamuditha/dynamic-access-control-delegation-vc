@@ -1,4 +1,4 @@
-import ariesCloudAgentApiClient from "../../../../../configs/axiosConfig";
+import { ariesCloudAgentApiClient } from "../../../../../configs/axiosConfig";
 import { VPVerificationResponse } from "../../dtos/VPVerificationResponse";
 import { VPVerificationRequest } from "../../dtos/VPVerificationRequest";
 import { AxiosError } from "axios";
@@ -24,7 +24,7 @@ export const verifyPresentation: (
     }
 
     if (error.status === 400) {
-        console.log(error);
+      console.log(error);
     }
   }
 

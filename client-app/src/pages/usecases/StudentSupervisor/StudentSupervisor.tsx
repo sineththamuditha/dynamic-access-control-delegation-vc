@@ -34,7 +34,7 @@ const StudentSupervisor: React.FC = () => {
   const STUDENT: string = "student";
   const SUPERVISOR: string = "supervisor";
   const UNIVERSITY: string = "university";
-  const LIBRARY: string = "LIBRARY";
+  const LIBRARY: string = "library";
 
   const STUDENT_DID_IDENTIFIER_KEY: string = "studentDIDIdentifier";
   const SUPERVISOR_DID_IDENTIFIER_KEY: string = "supervisorDIDIdentifier";
