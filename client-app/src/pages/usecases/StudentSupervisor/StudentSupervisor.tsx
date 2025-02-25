@@ -156,7 +156,7 @@ const StudentSupervisor: React.FC = () => {
   };
 
   return (
-    <JsonViewProvider children={undefined}>
+    <JsonViewProvider>
       <div className="upper">
         <div className="left-section">
           <button onClick={async () => await issueUniversityCredentials()}>

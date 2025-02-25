@@ -19,7 +19,11 @@ const MainPage: React.FC = () => {
   };
 
   const changePageToDoctorNurseProtocol = () => {
-    setPage(Page.PROTOCOL_DOCTO_NURSE);
+    setPage(Page.PROTOCOL_DOCTOR_NURSE);
+  };
+
+  const changePageToEmployeeProtocol = () => {
+    setPage(Page.PROTOCOL_EMPLOYEE);
   };
 
   return (
@@ -36,6 +40,9 @@ const MainPage: React.FC = () => {
         <button onClick={changePageToDoctorNurse}>Doctor Nurse Usecase</button>
         <button onClick={changePageToDoctorNurseProtocol}>
           Doctor Nurse Use Case Protocol Implementation
+        </button>
+        <button onClick={changePageToEmployeeProtocol}>
+          Employee Use Case Protocol Implementation
         </button>
       </div>
     </div>

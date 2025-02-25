@@ -4,12 +4,12 @@ default allow = false
 
 allow if {
 
-    # check if it is a university student 
+    # check if it is a hospital employee
     input.credentialSubject.attributes.isHospitalEmployee == true
 
-    # check if student id is present
+    # check if whether employee is a nurse
     input.credentialSubject.attributes.roleName == "Nurse"
 
-    # check if university is present
+    # check if the license number is present
     input.credentialSubject.attributes.license
 }
