@@ -16,6 +16,7 @@ interface EnvConfig {
     S3_BUCKET_NAME: string;
     WEB_DID_BASIC_URL: string;
     SERVICE_ENDPOINT_BASE_URL: string;
+    INFURA_PROJECT_ID: string
 }
 
 export const CONFIG : EnvConfig = {
@@ -37,4 +38,5 @@ export const CONFIG : EnvConfig = {
     S3_BUCKET_NAME: process.env.REACT_APP_S3_BUCKET_NAME || "",
     WEB_DID_BASIC_URL: process.env.REACT_APP_WEB_DID_BASIC_URL || "",
     SERVICE_ENDPOINT_BASE_URL: process.env.REACT_APP_SERVICE_ENDPOINT_BASE_URL || "",
+    INFURA_PROJECT_ID: process.env.REACT_APP_INFURA_PROJECT_ID || "",
 }

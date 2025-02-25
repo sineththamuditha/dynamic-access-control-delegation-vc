@@ -4,7 +4,7 @@ import { CONFIG } from "../constants";
 import { createDIDDocument } from "../utils/didDocumentUtils";
 import { uploadDidDocument } from "../pages/usecases/StudentSupervisor/apis/uploadDidDocument";
 
-export const didWebAgent = setupAgent("didWeb");
+export const didWebAgent = setupAgent();
 
 export const getDidFor: (name: string) => Promise<IIdentifier> = async (name: string) => {
   const identifier = await didWebAgent.didManagerGetOrCreate({
