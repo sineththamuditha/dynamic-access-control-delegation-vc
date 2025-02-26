@@ -36,7 +36,6 @@ const EmployeeProtocol: React.FC = () => {
 
   const EMPLOYEE_DID_IDENTIFIER_KEY: string = "employeeDIDIdentifier";
 
-  const COMPANY_VC_KEY: string = "companyVC";
   const EMPLOYEE_VC_KEY: string = "employeeVC";
   const ADC_VC_KEY: string = "adcVC";
 
