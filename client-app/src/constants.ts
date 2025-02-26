@@ -40,3 +40,13 @@ export const CONFIG : EnvConfig = {
     SERVICE_ENDPOINT_BASE_URL: process.env.REACT_APP_SERVICE_ENDPOINT_BASE_URL || "",
     INFURA_PROJECT_ID: process.env.REACT_APP_INFURA_PROJECT_ID || "",
 }
+
+export interface EvaluationResult {
+    Iteration: number
+    "Delagation Start": number;
+    "Delegation End": number;
+    "Delegation Time Taken": number;
+    "Verification Start": number;
+    "Verification End": number;
+    "Verification Time Taken": number;
+}

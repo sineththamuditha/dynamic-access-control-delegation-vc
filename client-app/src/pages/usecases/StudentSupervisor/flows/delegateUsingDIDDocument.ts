@@ -37,7 +37,7 @@ export const delegateUsingDIDDocument: (
     }
   )
 
-  uploadDidDocument(
+  await uploadDidDocument(
     "supervisor",
     didDocument
   )

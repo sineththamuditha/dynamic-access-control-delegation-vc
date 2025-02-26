@@ -10,13 +10,15 @@ import { verifyVerifiablePresentation } from "./flows/verifyVerifiablePresentati
 import JsonViewProvider from "../../../context/JsonViewContext";
 import { PageContext } from "../../../context/PageContext";
 import { Page } from "../../../enums/PageEnum";
-import { CONFIG } from "../../../constants";
+import { CONFIG, EvaluationResult } from "../../../constants";
 import {
   IIdentifier,
+  IVerifyResult,
   VerifiableCredential,
   VerifiablePresentation,
 } from "@veramo/core";
 import { getDidFor } from "../../../agents/didWebAgent";
+import Papa from "papaparse";
 
 const StudentSupervisor: React.FC = () => {
   const [didIdentifiers, setDIDIdentifiers] = useState<{
@@ -30,6 +32,19 @@ const StudentSupervisor: React.FC = () => {
   const { addLog, clearLogs } = useContext(LogContext);
   const [json, setJson] = useState<any>({});
   const { setPage } = useContext(PageContext);
+
+  const [evaluationResults, setEvaluationResults] = useState<
+    EvaluationResult[]
+  >([]);
+
+  const addEvaluationResult: (evaluationResult: EvaluationResult) => void = (
+    evaluationResult: EvaluationResult
+  ) => {
+    const evaluationResultArray = evaluationResults;
+
+    evaluationResultArray.push(evaluationResult);
+    setEvaluationResults(evaluationResultArray);
+  };
 
   const STUDENT: string = "student";
   const SUPERVISOR: string = "supervisor";
@@ -148,11 +163,75 @@ const StudentSupervisor: React.FC = () => {
   const verifyVerifiablePresentationForLibrary = async () => {
     addLog("Verifying library verifiable presentation...");
 
-    setJson(await verifyVerifiablePresentation(verifiablePresentation));
+    const verificationResult: IVerifyResult =
+      await verifyVerifiablePresentation(verifiablePresentation);
+
+    setJson(verificationResult);
 
     addLog(
-      "Verifible presentation verification results is present at the console"
+      `Verifiable presentation verification results is : ${verificationResult.verified}`
     );
+  };
+
+  const Evaluate: () => Promise<void> = async () => {
+
+
+    const supervisorLibraryCredential =
+        await issueLibraryCredentialForSupervisor(
+          didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+          didIdentifiers[LIBRARY_DID_IDENTIFIER_KEY]
+        );
+
+    for (let i = 0; i <= 10; i++) {
+
+      addLog("Library credential issueed");
+
+      const delegationStart: DOMHighResTimeStamp = performance.now();
+
+      await delegateUsingDIDDocument(
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY]
+      );
+
+      const delegationEnd: DOMHighResTimeStamp = performance.now();
+
+      const libraryVerifiablePresentation: VerifiablePresentation =
+        await createVerifiablePresentationForLibrary(
+          didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+          supervisorLibraryCredential
+        );
+
+      const verificationStart: DOMHighResTimeStamp = performance.now();
+
+      const verificationResult: IVerifyResult =
+        await verifyVerifiablePresentation(libraryVerifiablePresentation);
+
+      const verificationEnd: DOMHighResTimeStamp = performance.now();
+
+      addLog(`Verification Result for ${i} attempt: ${verificationResult}`);
+
+      addEvaluationResult({
+        Iteration: i,
+        "Delagation Start": delegationStart,
+        "Delegation End": delegationEnd,
+        "Delegation Time Taken": delegationEnd - delegationStart,
+        "Verification Start": verificationStart,
+        "Verification End": verificationEnd,
+        "Verification Time Taken": verificationEnd - verificationStart,
+      });
+    }
+
+    const csvData = Papa.unparse(evaluationResults);
+
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "supervisorStudent.csv");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -176,6 +255,7 @@ const StudentSupervisor: React.FC = () => {
           >
             Present credentials
           </button>
+          <button onClick={Evaluate}>Evaluate</button>
           <button onClick={clearLogs}>Clear Terminal</button>
           <button onClick={goBackToMainPage}>Go Back To Main Page</button>
         </div>

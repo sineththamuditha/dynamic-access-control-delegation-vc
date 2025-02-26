@@ -15,7 +15,7 @@ export const getDidFor: (name: string) => Promise<IIdentifier> = async (name: st
   const keyOfTheUser = identifier.keys.at(0);
 
   keyOfTheUser &&
-    uploadDidDocument(
+    await uploadDidDocument(
       name,
       createDIDDocument(identifier.did, {
         [identifier.did]: keyOfTheUser,

@@ -9,7 +9,7 @@ import { LogContext } from "../../../context/LogContext";
 import { PageContext } from "../../../context/PageContext";
 import { Page } from "../../../enums/PageEnum";
 import { JsonView } from "react-json-view-lite";
-import { CONFIG } from "../../../constants";
+import { CONFIG, EvaluationResult } from "../../../constants";
 import { getEthrDid } from "../../../agents/didEthrAgent";
 import { issueCredentialsForEmployeeAndCompany } from "./flows/issueCredentialsForEmployeeAndCompany";
 import { createVerifiablePresentationToGetADC } from "./flows/createVerifiblePresentationForADC";
@@ -17,6 +17,7 @@ import { issueAccessDelegationCredential } from "./flows/issueAccessDelegationCr
 import { createVerifiablePresenationWithADC } from "./flows/createVerifiablePresentationWithADC";
 import { checkCredentialServerHealth } from "../../../utils/protocolUtils";
 import { presentAndVerifyVerifiablePresentation } from "./flows/presentAndVerifyVerifiablePresentation";
+import Papa from "papaparse";
 
 const EmployeeProtocol: React.FC = () => {
   const [didIdentifiers, setDIDIdentifiers] = useState<{
@@ -41,6 +42,19 @@ const EmployeeProtocol: React.FC = () => {
 
   const VP_FOR_ADC: string = "vpForADC";
   const VP_FOR_RESOURCE: string = "vpForResource";
+
+  const [evaluationResults, setEvaluationResults] = useState<
+    EvaluationResult[]
+  >([]);
+
+  const addEvaluationResult: (evaluationResult: EvaluationResult) => void = (
+    evaluationResult: EvaluationResult
+  ) => {
+    const evaluationResultArray = evaluationResults;
+
+    evaluationResultArray.push(evaluationResult);
+    setEvaluationResults(evaluationResultArray);
+  };
 
   useEffect(() => {
     checkCredentialServerHealth().then((active: boolean) => {
@@ -140,6 +154,65 @@ const EmployeeProtocol: React.FC = () => {
     addLog(`Credential retrieval process success: ${verificationResult}`);
   };
 
+  const evaluate: () => Promise<void> = async () => {
+    const employeeCredential = await issueCredentialsForEmployeeAndCompany(
+      didIdentifiers[EMPLOYEE_DID_IDENTIFIER_KEY]
+    );
+
+    const verifiablePresentation: VerifiablePresentation =
+      await createVerifiablePresentationToGetADC(
+        didIdentifiers[EMPLOYEE_DID_IDENTIFIER_KEY],
+        employeeCredential
+      );
+
+    for (let i = 0; i <= 10; i++) {
+      const delegationStart: DOMHighResTimeStamp = performance.now();
+
+      const adc: VerifiableCredential = await issueAccessDelegationCredential(
+        verifiablePresentation
+      );
+
+      const delegationEnd: DOMHighResTimeStamp = performance.now();
+
+      const vpWithADC: VerifiablePresentation =
+        await createVerifiablePresenationWithADC(
+          adc,
+          didIdentifiers[EMPLOYEE_DID_IDENTIFIER_KEY]
+        );
+
+      const verificationStart: DOMHighResTimeStamp = performance.now();
+
+      const verificationResult: boolean =
+        await presentAndVerifyVerifiablePresentation(vpWithADC, setJson);
+
+      const verificationEnd: DOMHighResTimeStamp = performance.now();
+
+      addLog(`Verification Result for ${i} attempt: ${verificationResult}`);
+
+      addEvaluationResult({
+        Iteration: i,
+        "Delagation Start": delegationStart,
+        "Delegation End": delegationEnd,
+        "Delegation Time Taken": delegationEnd - delegationStart,
+        "Verification Start": verificationStart,
+        "Verification End": verificationEnd,
+        "Verification Time Taken": verificationEnd - verificationStart,
+      });
+    }
+
+    const csvData = Papa.unparse(evaluationResults);
+
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "EmployeeProtocol.csv");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <JsonViewProvider>
       <div className="upper">
@@ -159,6 +232,7 @@ const EmployeeProtocol: React.FC = () => {
           <button onClick={presentVerifiablePresentation}>
             Present Verifiable Presentation
           </button>
+          <button onClick={evaluate}>Evaluate</button>
           <button onClick={clearLogs}>Clear Terminal</button>
           <button onClick={goBackToMainPage}>Go Back To Main Page</button>
         </div>

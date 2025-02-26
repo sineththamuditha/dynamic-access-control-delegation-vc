@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import JsonViewProvider from "../../../context/JsonViewContext";
 import { JsonView } from "react-json-view-lite";
-import { CONFIG } from "../../../constants";
+import { CONFIG, EvaluationResult } from "../../../constants";
 import { DIDStore } from "../../../context/didStore";
 import { Wallet } from "./models/wallet";
 import { createWallet } from "./apis/walletClient/walletCreation";
@@ -19,6 +19,7 @@ import { fetchCredential } from "./apis/credentialClient/credentialFetch";
 import { issueAccessDelegationCredential } from "./flows/issueAccessDelegationCredential";
 import { createVerifiablePresentationWithADC } from "./flows/createVerifiablePresentationWithADC";
 import { presentAndVerifyVerifiablePresentation } from "./flows/PresentAndVerifyVerifiablePresentation";
+import Papa from "papaparse";
 
 const DoctorNurseProtocol: React.FC = () => {
   const [json, setJson] = useState<any>({});
@@ -31,6 +32,19 @@ const DoctorNurseProtocol: React.FC = () => {
   const [verifiablePresentations, setVerifiablePresentations] = useState<
     VerifiablePresentation[]
   >([]);
+
+  const [evaluationResults, setEvaluationResults] = useState<
+    EvaluationResult[]
+  >([]);
+
+  const addEvaluationResult: (evaluationResult: EvaluationResult) => void = (
+    evaluationResult: EvaluationResult
+  ) => {
+    const evaluationResultArray = evaluationResults;
+
+    evaluationResultArray.push(evaluationResult);
+    setEvaluationResults(evaluationResultArray);
+  };
 
   const HOSPITAL_DID_KEY: string = "hospitalDID";
   const DOCTOR_DID_KEY: string = "doctorDID";
@@ -196,7 +210,69 @@ const DoctorNurseProtocol: React.FC = () => {
       );
     }
 
-    addLog(`Hospital System: verification result is -> ${verificationResult}`)
+    addLog(`Hospital System: verification result is -> ${verificationResult}`);
+  };
+
+  const evaluate: () => Promise<void> = async () => {
+    const { doctorVC, nurseVC } = await issueHospitalVerifiableCredentials(
+      dids[HOSPITAL_DID_KEY],
+      dids[DOCTOR_DID_KEY],
+      dids[NURSE_DID_KEY]
+    );
+
+    const storedIds: string[] = await storeCredentials([doctorVC, nurseVC]);
+
+    const verifiablePresentationForADC: VerifiablePresentation =
+      await createVerifiablePresentationToGetADC(dids[NURSE_DID_KEY], nurseVC);
+
+    for (let i = 0; i <= 10; i++) {
+      const delegationStart: DOMHighResTimeStamp = performance.now();
+
+      const adc: VerifiableCredential = await issueAccessDelegationCredential(
+        verifiablePresentationForADC,
+        dids[DOCTOR_DID_KEY],
+        storedIds[0]
+      );
+
+      const delegationEnd: DOMHighResTimeStamp = performance.now();
+
+      const verifiablePresentation: VerifiablePresentation =
+        await createVerifiablePresentationWithADC(dids[NURSE_DID_KEY], [
+          adc,
+          nurseVC,
+        ]);
+
+      const verificationStart: DOMHighResTimeStamp = performance.now();
+
+      const verificationResult: boolean =
+        await presentAndVerifyVerifiablePresentation(verifiablePresentation);
+
+      const verificationEnd: DOMHighResTimeStamp = performance.now();
+
+      addLog(`Verification Result for ${i} attempt: ${verificationResult}`);
+
+      addEvaluationResult({
+        Iteration: i,
+        "Delagation Start": delegationStart,
+        "Delegation End": delegationEnd,
+        "Delegation Time Taken": delegationEnd - delegationStart,
+        "Verification Start": verificationStart,
+        "Verification End": verificationEnd,
+        "Verification Time Taken": verificationEnd - verificationStart,
+      });
+    }
+
+    const csvData = Papa.unparse(evaluationResults);
+
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "supervisorStudentProtocol.csv");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -216,6 +292,7 @@ const DoctorNurseProtocol: React.FC = () => {
           <button onClick={presentVerifiablePresentation}>
             Present Credentials
           </button>
+          <button onClick={evaluate}>Evaluate</button>
           <button onClick={clearLogs}>Clear Terminal</button>
           <button onClick={goBackToMainPage}>Go Back To Main Page</button>
         </div>
@@ -232,4 +309,4 @@ const DoctorNurseProtocol: React.FC = () => {
   );
 };
 
-export default DoctorNurseProtocol
+export default DoctorNurseProtocol;

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import JsonViewProvider from "../../../context/JsonViewContext";
 import { JsonView } from "react-json-view-lite";
-import { CONFIG } from "../../../constants";
+import { CONFIG, EvaluationResult } from "../../../constants";
 import {
   IIdentifier,
   VerifiableCredential,
@@ -19,6 +19,7 @@ import { LogContext } from "../../../context/LogContext";
 import { PageContext } from "../../../context/PageContext";
 import { Page } from "../../../enums/PageEnum";
 import { checkCredentialServerHealth } from "../../../utils/protocolUtils";
+import Papa from "papaparse";
 
 const StudentSupervisorProtocol: React.FC = () => {
   const [json, setJson] = useState<any>({});
@@ -33,6 +34,19 @@ const StudentSupervisorProtocol: React.FC = () => {
   >([]);
   const { setPage } = useContext(PageContext);
   const { addLog, clearLogs } = useContext(LogContext);
+
+  const [evaluationResults, setEvaluationResults] = useState<
+    EvaluationResult[]
+  >([]);
+
+  const addEvaluationResult: (evaluationResult: EvaluationResult) => void = (
+    evaluationResult: EvaluationResult
+  ) => {
+    const evaluationResultArray = evaluationResults;
+
+    evaluationResultArray.push(evaluationResult);
+    setEvaluationResults(evaluationResultArray);
+  };
 
   const STUDENT: string = "student";
   const SUPERVISOR: string = "supervisor";
@@ -53,12 +67,11 @@ const StudentSupervisorProtocol: React.FC = () => {
   const VP_FOR_LIBRARY: string = "vpForLibrary";
 
   useEffect(() => {
-
     checkCredentialServerHealth().then((active: boolean) => {
-            if (!active) {
-                throw new Error('Please make sure Credential Server is running')
-            }
-        })
+      if (!active) {
+        throw new Error("Please make sure Credential Server is running");
+      }
+    });
 
     getDidProtocolFor(STUDENT).then((studentDID: IIdentifier) => {
       setDIDIdentifiers((prevDidIdentifiers) => ({
@@ -181,23 +194,106 @@ const StudentSupervisorProtocol: React.FC = () => {
         [storedVCs[STUDENT_ADC_VC_KEY], storedVCs[STUDENT_UNIVERSITY_VC_KEY]]
       );
 
-      setVerifiablePresentations((prevPresentations) => ({
-        ...prevPresentations,
-        [VP_FOR_LIBRARY]: vpForLibrary,
-      }));
+    setVerifiablePresentations((prevPresentations) => ({
+      ...prevPresentations,
+      [VP_FOR_LIBRARY]: vpForLibrary,
+    }));
 
     setJson(vpForLibrary);
   };
 
   const presentCredentials: () => Promise<void> = async () => {
-    const verificationResult: boolean = await presentAndVerifyVerifiablePresentation(verifiablePresentations[VP_FOR_LIBRARY])
-    
-    if(!verificationResult) {
-      throw new Error("Library Sytem: could not verify student credentials")
+    const verificationResult: boolean =
+      await presentAndVerifyVerifiablePresentation(
+        verifiablePresentations[VP_FOR_LIBRARY]
+      );
+
+    if (!verificationResult) {
+      throw new Error("Library Sytem: could not verify student credentials");
     }
 
-    addLog(`Library System: verification result is -> ${verificationResult}`)
-  }
+    addLog(`Library System: verification result is -> ${verificationResult}`);
+  };
+
+  const evaluate: () => Promise<void> = async () => {
+    const { signedStudentVC } =
+      await issueUniversityCredentialsForSupervisorAndStudent(
+        didIdentifiers[UNIVERSITY_DID_IDENTIFIER_KEY],
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY]
+      );
+
+    const supervisorLibraryCredential =
+      await issueLibraryCredentialForSupervisor(
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[LIBRARY_DID_IDENTIFIER_KEY]
+      );
+
+    try {
+      await credentialServerApiClient.post<{ message: string }>(
+        "/supervisor/library-credential/set",
+        supervisorLibraryCredential
+      );
+    } catch (error) {
+      console.log(error);
+      throw new Error("Credential uploading failed");
+    }
+
+    const vpForADC: VerifiablePresentation =
+      await createVerifiablePresentationToGetADC(
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY],
+        signedStudentVC
+      );
+
+    for (let i = 0; i <= 10; i++) {
+      const delegationStart: DOMHighResTimeStamp = performance.now();
+
+      const adc: VerifiableCredential = await issueAccessDelegationCredential(
+        vpForADC,
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        supervisorLibraryCredential.id as string
+      );
+
+      const delegationEnd: DOMHighResTimeStamp = performance.now();
+
+      const vpForLibrary: VerifiablePresentation =
+        await createVerifiablePresentationWithADC(
+          didIdentifiers[STUDENT_DID_IDENTIFIER_KEY],
+          [adc, signedStudentVC]
+        );
+
+      const verificationStart: DOMHighResTimeStamp = performance.now();
+
+      const verificationResult: boolean =
+        await presentAndVerifyVerifiablePresentation(vpForLibrary);
+
+      const verificationEnd: DOMHighResTimeStamp = performance.now();
+
+      addLog(`Verification Result for ${i} attempt: ${verificationResult}`);
+
+      addEvaluationResult({
+        Iteration: i,
+        "Delagation Start": delegationStart,
+        "Delegation End": delegationEnd,
+        "Delegation Time Taken": delegationEnd - delegationStart,
+        "Verification Start": verificationStart,
+        "Verification End": verificationEnd,
+        "Verification Time Taken": verificationEnd - verificationStart,
+      });
+    }
+
+    const csvData = Papa.unparse(evaluationResults);
+
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "supervisorStudentProtocol.csv");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <JsonViewProvider>
@@ -219,6 +315,7 @@ const StudentSupervisorProtocol: React.FC = () => {
             Create Verifiable Presentation
           </button>
           <button onClick={presentCredentials}>Present credentials</button>
+          <button onClick={evaluate}>Evaluate</button>
           <button onClick={clearLogs}>Clear Terminal</button>
           <button onClick={goBackToMainPage}>Go Back To Main Page</button>
         </div>
