@@ -165,7 +165,7 @@ const EmployeeProtocol: React.FC = () => {
         employeeCredential
       );
 
-    for (let i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 50; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const adc: VerifiableCredential = await issueAccessDelegationCredential(
@@ -197,6 +197,7 @@ const EmployeeProtocol: React.FC = () => {
         "Verification Start": verificationStart,
         "Verification End": verificationEnd,
         "Verification Time Taken": verificationEnd - verificationStart,
+        "Total Time Taken": (delegationEnd - delegationStart) + (verificationEnd - verificationStart),
       });
     }
 
@@ -206,7 +207,7 @@ const EmployeeProtocol: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "EmployeeProtocol.csv");
+    link.setAttribute("download", "employeeProtocol.csv");
 
     document.body.appendChild(link);
     link.click();

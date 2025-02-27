@@ -49,4 +49,5 @@ export interface EvaluationResult {
     "Verification Start": number;
     "Verification End": number;
     "Verification Time Taken": number;
+    "Total Time Taken": number;
 }

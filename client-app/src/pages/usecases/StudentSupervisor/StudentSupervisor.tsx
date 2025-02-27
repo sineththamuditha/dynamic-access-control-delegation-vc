@@ -182,7 +182,7 @@ const StudentSupervisor: React.FC = () => {
           didIdentifiers[LIBRARY_DID_IDENTIFIER_KEY]
         );
 
-    for (let i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 50; i++) {
 
       addLog("Library credential issueed");
 
@@ -218,6 +218,7 @@ const StudentSupervisor: React.FC = () => {
         "Verification Start": verificationStart,
         "Verification End": verificationEnd,
         "Verification Time Taken": verificationEnd - verificationStart,
+        "Total Time Taken": (delegationEnd - delegationStart) + (verificationEnd - verificationStart),
       });
     }
 

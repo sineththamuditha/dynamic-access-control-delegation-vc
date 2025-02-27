@@ -193,7 +193,7 @@ const DoctorNurse: React.FC = () => {
       dids[NURSE_DID_KEY]
     );
 
-    for (let i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 50; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const delegatedVC: VerifiableCredential | null =
@@ -243,6 +243,7 @@ const DoctorNurse: React.FC = () => {
         "Verification Start": verificationStart,
         "Verification End": verificationEnd,
         "Verification Time Taken": verificationEnd - verificationStart,
+        "Total Time Taken": (delegationEnd - delegationStart) + (verificationEnd - verificationStart),
       });
     }
 
@@ -252,7 +253,7 @@ const DoctorNurse: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "supervisorStudentProtocol.csv");
+    link.setAttribute("download", "doctorNurse.csv");
 
     document.body.appendChild(link);
     link.click();

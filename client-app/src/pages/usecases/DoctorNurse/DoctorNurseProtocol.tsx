@@ -225,7 +225,7 @@ const DoctorNurseProtocol: React.FC = () => {
     const verifiablePresentationForADC: VerifiablePresentation =
       await createVerifiablePresentationToGetADC(dids[NURSE_DID_KEY], nurseVC);
 
-    for (let i = 0; i <= 10; i++) {
+    for (let i = 0; i <= 50; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const adc: VerifiableCredential = await issueAccessDelegationCredential(
@@ -259,6 +259,7 @@ const DoctorNurseProtocol: React.FC = () => {
         "Verification Start": verificationStart,
         "Verification End": verificationEnd,
         "Verification Time Taken": verificationEnd - verificationStart,
+        "Total Time Taken": (delegationEnd - delegationStart) + (verificationEnd - verificationStart),
       });
     }
 
@@ -268,7 +269,7 @@ const DoctorNurseProtocol: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "supervisorStudentProtocol.csv");
+    link.setAttribute("download", "doctoNurseProtocol.csv");
 
     document.body.appendChild(link);
     link.click();
