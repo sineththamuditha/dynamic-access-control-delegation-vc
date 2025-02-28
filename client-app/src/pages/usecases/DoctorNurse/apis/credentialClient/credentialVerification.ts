@@ -18,5 +18,5 @@ export const verifyCredential: (
     )
   ).data;
 
-  return verificationResponse.results.verified;
+  return verificationResponse.verified;
 };

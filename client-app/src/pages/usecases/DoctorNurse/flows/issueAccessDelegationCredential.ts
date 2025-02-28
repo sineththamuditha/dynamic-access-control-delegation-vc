@@ -53,6 +53,8 @@ export const issueAccessDelegationCredential: (
     attributes["licenseNumber"] =
       hospitalCredential["credentialSubject"]["licenseNumber"];
   }
+  
+  console.log(attributes)
 
   return await createVerifiableCredential({
     "@context": [
@@ -61,7 +63,7 @@ export const issueAccessDelegationCredential: (
       CONFIG.CREDENTIAL_DEFINITION_BASE_URL + "/definition-v1.jsonld",
     ],
     issuer: doctorDID,
-    type: ["VerifiableCredential", "AccessDelegationCredentia;"],
+    type: ["VerifiableCredential", "AccessDelegationCredential"],
     issuanceDate: new Date().toISOString(),
     credentialSubject: {
       attributes,

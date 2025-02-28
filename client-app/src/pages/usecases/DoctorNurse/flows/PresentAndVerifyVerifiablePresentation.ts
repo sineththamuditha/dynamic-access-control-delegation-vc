@@ -1,4 +1,8 @@
-import { VerifiableCredential, VerifiablePresentation, W3CVerifiableCredential } from "@veramo/core";
+import {
+  VerifiableCredential,
+  VerifiablePresentation,
+  W3CVerifiableCredential,
+} from "@veramo/core";
 import { verifyPresentation } from "../apis/presentationClient/verifyPresentation";
 import { credentialServerApiClient } from "../../../../configs/axiosConfig";
 import { verifyCredential } from "../apis/credentialClient/credentialVerification";
@@ -46,7 +50,7 @@ export const presentAndVerifyVerifiablePresentationForProtocol: (
 
   if (!accessDelegationCredential) {
     throw new Error(
-      "Library System: access delegation credential could not be found"
+      "Hospital System: access delegation credential could not be found"
     );
   }
 
@@ -57,23 +61,29 @@ export const presentAndVerifyVerifiablePresentationForProtocol: (
 
   if (!credentialRetrievalEndpoint) {
     throw new Error(
-      "Library System: credential retrieval enpoint is not specified"
+      "Hospital System: credential retrieval enpoint is not specified"
     );
   }
 
   try {
-      const credentialRetrievalResponse =
-        await credentialServerApiClient.post<VerifiableCredential>(
-          "/doctor/hospital-credential/get",
-          accessDelegationCredential
-        );
-  
-      const credentialeVerificationResult: boolean = await verifyCredential(credentialRetrievalResponse.data);
-        
-  
-      return credentialeVerificationResult;
-    } catch (error) {
-      console.log(error);
-      throw new Error("Library System: credential retrieval failed");
-    }
+    const credentialRetrievalResponse =
+      await credentialServerApiClient.post<VerifiableCredential>(
+        "/doctor/hospital-credential/get",
+        accessDelegationCredential
+      );
+
+    const credentialeVerificationResult: boolean = await verifyCredential(
+      credentialRetrievalResponse.data
+    );
+
+    console.log(await verifyCredential(
+      credentialRetrievalResponse.data
+    ))
+
+    
+    return credentialeVerificationResult;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Hospital System: credential retrieval failed");
+  }
 };

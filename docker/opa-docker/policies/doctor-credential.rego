@@ -11,5 +11,5 @@ allow if {
     input.credentialSubject.attributes.roleName == "Nurse"
 
     # check if the license number is present
-    input.credentialSubject.attributes.license
+    input.credentialSubject.attributes.licenseNumber
 }

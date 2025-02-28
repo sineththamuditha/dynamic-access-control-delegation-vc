@@ -18,7 +18,7 @@ import { createVerifiablePresentationToGetADC } from "./flows/createVerifiablePr
 import { fetchCredential } from "./apis/credentialClient/credentialFetch";
 import { issueAccessDelegationCredential } from "./flows/issueAccessDelegationCredential";
 import { createVerifiablePresentationWithADC } from "./flows/createVerifiablePresentationWithADC";
-import { presentAndVerifyVerifiablePresentation } from "./flows/PresentAndVerifyVerifiablePresentation";
+import { presentAndVerifyVerifiablePresentationForProtocol } from "./flows/PresentAndVerifyVerifiablePresentation";
 import Papa from "papaparse";
 
 const DoctorNurseProtocol: React.FC = () => {
@@ -200,7 +200,7 @@ const DoctorNurseProtocol: React.FC = () => {
 
   const presentVerifiablePresentation: () => Promise<void> = async () => {
     const verificationResult: boolean =
-      await presentAndVerifyVerifiablePresentation(
+      await presentAndVerifyVerifiablePresentationForProtocol(
         verifiablePresentations[VP_FOR_HOSPITAL_SYSTEM]
       );
 
@@ -247,7 +247,7 @@ const DoctorNurseProtocol: React.FC = () => {
       const verificationStart: DOMHighResTimeStamp = performance.now();
 
       const verificationResult: boolean =
-        await presentAndVerifyVerifiablePresentation(verifiablePresentation);
+        await presentAndVerifyVerifiablePresentationForProtocol(verifiablePresentation);
 
       const verificationEnd: DOMHighResTimeStamp = performance.now();
 
