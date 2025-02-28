@@ -130,8 +130,29 @@ const DoctorNurse: React.FC = () => {
   };
 
   const delegateDoctorCredential = async () => {
+
+    const verifiablePresentationWithNurseVC: VerifiablePresentation | undefined = await createPresentation({
+      presentation: {
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        type: ["VerifiablePresentation"],
+        holder: dids[NURSE_DID_KEY],
+        verifiableCredential: [
+          await fetchCredential(storedCredentialIds[NURSE_HOSPITAL_CREDENTIAL_ID_KEY]),
+        ],
+      },
+      options: {
+        proofPurpose: "authentication",
+        challenge: crypto.randomUUID(),
+      },
+    })
+
+    if (!verifiablePresentationWithNurseVC) {
+      throw new Error("Error in creating delegated credential");
+    }
+
     const delegatedVC: VerifiableCredential | null =
       await delegateDoctorVerifiableCredential(
+        verifiablePresentationWithNurseVC,
         dids[NURSE_DID_KEY],
         dids[DOCTOR_DID_KEY]
       );
@@ -195,11 +216,31 @@ const DoctorNurse: React.FC = () => {
 
     const nurseVCId: string[] = await storeCredentials([nurseVC]);
 
+    const verifiablePresentationWithNurseVC: VerifiablePresentation | undefined = await createPresentation({
+      presentation: {
+        "@context": ["https://www.w3.org/2018/credentials/v1"],
+        type: ["VerifiablePresentation"],
+        holder: dids[NURSE_DID_KEY],
+        verifiableCredential: [
+          await fetchCredential(nurseVCId[0]),
+        ],
+      },
+      options: {
+        proofPurpose: "authentication",
+        challenge: crypto.randomUUID(),
+      },
+    })
+
+    if (!verifiablePresentationWithNurseVC) {
+      throw new Error("Error in creating delegated credential");
+    }
+
     for (let i = 0; i <= 100; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const delegatedVC: VerifiableCredential | null =
         await delegateDoctorVerifiableCredential(
+          verifiablePresentationWithNurseVC,
           dids[NURSE_DID_KEY],
           dids[DOCTOR_DID_KEY]
         );
