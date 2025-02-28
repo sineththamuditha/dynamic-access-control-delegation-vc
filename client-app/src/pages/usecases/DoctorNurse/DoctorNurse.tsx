@@ -193,7 +193,9 @@ const DoctorNurse: React.FC = () => {
       dids[NURSE_DID_KEY]
     );
 
-    for (let i = 0; i <= 50; i++) {
+    const nurseVCId: string[] = await storeCredentials([nurseVC]);
+
+    for (let i = 0; i <= 100; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const delegatedVC: VerifiableCredential | null =
@@ -208,13 +210,18 @@ const DoctorNurse: React.FC = () => {
         throw new Error("Error in creating delegated credential");
       }
 
+      const delegatedVCId: string[] = await storeCredentials([delegatedVC]);
+
       const verifiablePresentation: VerifiablePresentation | undefined =
         await createPresentation({
           presentation: {
             "@context": ["https://www.w3.org/2018/credentials/v1"],
             type: ["VerifiablePresentation"],
             holder: dids[NURSE_DID_KEY],
-            verifiableCredential: [delegatedVC, nurseVC],
+            verifiableCredential: [
+              await fetchCredential(delegatedVCId[0]),
+              await fetchCredential(nurseVCId[0]),
+            ],
           },
           options: {
             proofPurpose: "authentication",
@@ -243,7 +250,10 @@ const DoctorNurse: React.FC = () => {
         "Verification Start": verificationStart,
         "Verification End": verificationEnd,
         "Verification Time Taken": verificationEnd - verificationStart,
-        "Total Time Taken": (delegationEnd - delegationStart) + (verificationEnd - verificationStart),
+        "Total Time Taken":
+          delegationEnd -
+          delegationStart +
+          (verificationEnd - verificationStart),
       });
     }
 

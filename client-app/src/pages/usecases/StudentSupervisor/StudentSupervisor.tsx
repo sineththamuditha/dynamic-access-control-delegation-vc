@@ -182,7 +182,7 @@ const StudentSupervisor: React.FC = () => {
           didIdentifiers[LIBRARY_DID_IDENTIFIER_KEY]
         );
 
-    for (let i = 0; i <= 50; i++) {
+    for (let i = 0; i <= 100; i++) {
 
       addLog("Library credential issueed");
 

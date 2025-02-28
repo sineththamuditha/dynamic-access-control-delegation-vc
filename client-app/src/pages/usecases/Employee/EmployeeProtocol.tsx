@@ -165,7 +165,7 @@ const EmployeeProtocol: React.FC = () => {
         employeeCredential
       );
 
-    for (let i = 0; i <= 50; i++) {
+    for (let i = 0; i <= 100; i++) {
       const delegationStart: DOMHighResTimeStamp = performance.now();
 
       const adc: VerifiableCredential = await issueAccessDelegationCredential(
