@@ -9,6 +9,7 @@ import React from "react";
 import StudentSupervisorProtocol from "./usecases/StudentSupervisor/StudentSupervisorProtocol";
 import DoctorNurseProtocol from "./usecases/DoctorNurse/DoctorNurseProtocol";
 import EmployeeProtocol from "./usecases/Employee/EmployeeProtocol";
+import AlgorithmImplementation from "./signing_algorithms/algorithmProtocolImplementation";
 
 const TwoPageView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<ReactNode>(<MainPage />);
@@ -33,6 +34,12 @@ const TwoPageView: React.FC = () => {
         break;
       case Page.PROTOCOL_EMPLOYEE:
         setCurrentPage(<EmployeeProtocol />);
+        break;
+      case Page.ED25519:
+        setCurrentPage(<AlgorithmImplementation keyType={"Ed25519"} />);
+        break;
+      case Page.SECP256k1:
+        setCurrentPage(<AlgorithmImplementation keyType={"Secp256k1"} />);
         break;
     }
   }, [page]);

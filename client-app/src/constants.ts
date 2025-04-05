@@ -51,3 +51,16 @@ export interface EvaluationResult {
     "Verification Time Taken": number;
     "Total Time Taken": number;
 }
+
+export interface KeyTypeEvaluationResult {
+    Iteration: number;
+    "Delegation Time Taken": number;
+    "Delegation Memory Usage": number;
+    "Delegation CPU Usage": number;
+    "Verification Time Taken": number;
+    "Verification Memory Usage": number;
+    "Verification CPU Usage": number;
+    "Retrieval Time Taken": number;
+    "Retrieval Memory Usage": number;
+    "Retrieval CPU Usage": number;
+}

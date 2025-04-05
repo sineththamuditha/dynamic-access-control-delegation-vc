@@ -9,10 +9,12 @@ import {
 import { DIDManager, MemoryDIDStore } from "@veramo/did-manager";
 import { WebDIDProvider } from "@veramo/did-provider-web";
 import { EthrDIDProvider } from "@veramo/did-provider-ethr"
+import { KeyDIDProvider } from "@veramo/did-provider-key";
 import { DIDResolverPlugin } from "@veramo/did-resolver";
 import { Resolver } from "did-resolver";
 import { getResolver as WebDIDResolver } from "web-did-resolver";
 import { getResolver as EthrDidResolver } from "ethr-did-resolver";
+import { getResolver as KeyDidResolver } from "key-did-resolver";
 import { CredentialPlugin } from "@veramo/credential-w3c";
 import { DIDComm, DIDCommMessageHandler, IDIDComm } from "@veramo/did-comm"
 import {
@@ -74,6 +76,9 @@ export const setupAgent = () => {
                 registry: MAINNET_TESTNET_REGISTRY
               }
             ]
+          }),
+          "did:key": new KeyDIDProvider({
+            defaultKms: DEFAULT_KMS
           })
         },
       }),
@@ -82,7 +87,8 @@ export const setupAgent = () => {
           ...WebDIDResolver(),
           ...EthrDidResolver({
             infuraProjectId: CONFIG.INFURA_PROJECT_ID
-          })
+          }),
+          ...KeyDidResolver()
         }),
       }),
       new CredentialPlugin(),

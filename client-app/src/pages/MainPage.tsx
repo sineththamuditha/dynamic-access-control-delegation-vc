@@ -26,6 +26,18 @@ const MainPage: React.FC = () => {
     setPage(Page.PROTOCOL_EMPLOYEE);
   };
 
+  const changePageToED25519 = () => {
+    setPage(Page.ED25519);
+  }
+
+  const changePageToX25519 = () => {
+    setPage(Page.X25519);
+  }
+
+  const changePageToSecp256k1 = () => {
+    setPage(Page.SECP256k1)
+  }
+
   return (
     <div className="upper">
       <div className="left-section"></div>
@@ -44,6 +56,9 @@ const MainPage: React.FC = () => {
         <button onClick={changePageToEmployeeProtocol}>
           Employee Use Case Protocol Implementation
         </button>
+        <button onClick={changePageToED25519}>Ed25519</button>
+        <button onClick={changePageToX25519}>X25519</button>
+        <button onClick={changePageToSecp256k1}>Secp256k1</button>
       </div>
     </div>
   );
