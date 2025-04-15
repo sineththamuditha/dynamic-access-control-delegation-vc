@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 import Console from "./Console";
-import StudentSupervisor from "./usecases/StudentSupervisor/StudentSupervisor";
+import StudentSupervisorAddDelegatee from "./usecases/StudentSupervisor/StudentSupervisorAddDelegatee";
 import { Page } from "../enums/PageEnum";
 import MainPage from "./MainPage";
 import { PageContext } from "../context/PageContext";
@@ -10,6 +10,7 @@ import StudentSupervisorProtocol from "./usecases/StudentSupervisor/StudentSuper
 import DoctorNurseProtocol from "./usecases/DoctorNurse/DoctorNurseProtocol";
 import EmployeeProtocol from "./usecases/Employee/EmployeeProtocol";
 import AlgorithmImplementation from "./signing_algorithms/algorithmProtocolImplementation";
+import StudentSupervisorAttenuated from "./usecases/StudentSupervisor/StudentSupervisorAttenuated";
 
 const TwoPageView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<ReactNode>(<MainPage />);
@@ -20,8 +21,11 @@ const TwoPageView: React.FC = () => {
       case Page.MAIN_PAGE:
         setCurrentPage(<MainPage />);
         break;
-      case Page.STUDENT_SUPERVISOR:
-        setCurrentPage(<StudentSupervisor />);
+      case Page.STUDENT_SUPERVISOR_ADD_DELEGATEE:
+        setCurrentPage(<StudentSupervisorAddDelegatee />);
+        break;
+      case Page.STUDENT_SUPERVISOR_ATTENUATED:
+        setCurrentPage(<StudentSupervisorAttenuated />);
         break;
       case Page.DOCTOR_NURSE:
         setCurrentPage(<DoctorNurse />);

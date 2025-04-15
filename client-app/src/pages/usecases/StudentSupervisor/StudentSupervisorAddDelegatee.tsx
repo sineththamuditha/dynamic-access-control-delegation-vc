@@ -20,7 +20,7 @@ import {
 import { getDidFor } from "../../../agents/didWebAgent";
 import Papa from "papaparse";
 
-const StudentSupervisor: React.FC = () => {
+const StudentSupervisorAddDelegatee: React.FC = () => {
   const [didIdentifiers, setDIDIdentifiers] = useState<{
     [key: string]: IIdentifier;
   }>({});
@@ -175,6 +175,23 @@ const StudentSupervisor: React.FC = () => {
 
   const Evaluate: () => Promise<void> = async () => {
 
+    const { signedSupervisorVC, signedStudentVC } =
+      await issueUniversityCredentialsForSupervisorAndStudent(
+        didIdentifiers[UNIVERSITY_DID_IDENTIFIER_KEY],
+        didIdentifiers[SUPERVISOR_DID_IDENTIFIER_KEY],
+        didIdentifiers[STUDENT_DID_IDENTIFIER_KEY]
+      );
+
+    setStoredVcs((prevVCs) => ({
+      ...prevVCs,
+      [SUPERVISOR_UNIVERSITY_VC_KEY]: signedSupervisorVC,
+      [STUDENT_UNIVERSITY_VC_KEY]: signedStudentVC,
+    }));
+
+    setJson({
+      [SUPERVISOR_UNIVERSITY_VC_KEY]: signedSupervisorVC,
+      [STUDENT_UNIVERSITY_VC_KEY]: signedStudentVC,
+    });
 
     const supervisorLibraryCredential =
         await issueLibraryCredentialForSupervisor(
@@ -273,4 +290,4 @@ const StudentSupervisor: React.FC = () => {
   );
 };
 
-export default StudentSupervisor;
+export default StudentSupervisorAddDelegatee;

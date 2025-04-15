@@ -7,7 +7,11 @@ const MainPage: React.FC = () => {
   const { setPage } = useContext(PageContext);
 
   const changePageToSupervisorStudent = () => {
-    setPage(Page.STUDENT_SUPERVISOR);
+    setPage(Page.STUDENT_SUPERVISOR_ADD_DELEGATEE);
+  };
+
+  const changePageToAttenuatedDelegation = () => {
+    setPage(Page.STUDENT_SUPERVISOR_ATTENUATED);
   };
 
   const changePageToSupervisorStudentProtocol = () => {
@@ -28,22 +32,20 @@ const MainPage: React.FC = () => {
 
   const changePageToED25519 = () => {
     setPage(Page.ED25519);
-  }
-
-  const changePageToX25519 = () => {
-    setPage(Page.X25519);
-  }
-
+  };
   const changePageToSecp256k1 = () => {
-    setPage(Page.SECP256k1)
-  }
+    setPage(Page.SECP256k1);
+  };
 
   return (
     <div className="upper">
       <div className="left-section"></div>
       <div className="right-section">
         <button onClick={changePageToSupervisorStudent}>
-          Supervisor Student Usecase
+          Supervisor Student Add Delegatee Implementation
+        </button>
+        <button onClick={changePageToAttenuatedDelegation}>
+          Supervisor Student Attenuated Delegation Imeplementation
         </button>
         <button onClick={changePageToSupervisorStudentProtocol}>
           Supervisor Student Use Case Protocol Implementation
@@ -57,7 +59,6 @@ const MainPage: React.FC = () => {
           Employee Use Case Protocol Implementation
         </button>
         <button onClick={changePageToED25519}>Ed25519</button>
-        <button onClick={changePageToX25519}>X25519</button>
         <button onClick={changePageToSecp256k1}>Secp256k1</button>
       </div>
     </div>
