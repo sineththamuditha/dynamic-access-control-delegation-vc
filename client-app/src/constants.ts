@@ -16,7 +16,8 @@ interface EnvConfig {
     S3_BUCKET_NAME: string;
     WEB_DID_BASIC_URL: string;
     SERVICE_ENDPOINT_BASE_URL: string;
-    INFURA_PROJECT_ID: string
+    INFURA_PROJECT_ID: string;
+    FLASK_BASE_URL: string;
 }
 
 export const CONFIG : EnvConfig = {
@@ -39,6 +40,7 @@ export const CONFIG : EnvConfig = {
     WEB_DID_BASIC_URL: process.env.REACT_APP_WEB_DID_BASIC_URL || "",
     SERVICE_ENDPOINT_BASE_URL: process.env.REACT_APP_SERVICE_ENDPOINT_BASE_URL || "",
     INFURA_PROJECT_ID: process.env.REACT_APP_INFURA_PROJECT_ID || "",
+    FLASK_BASE_URL: process.env.REACT_APP_FLASK_BASE_URL || ""
 }
 
 export interface EvaluationResult {
@@ -54,6 +56,7 @@ export interface EvaluationResult {
 
 export interface KeyTypeEvaluationResult {
     Iteration: number;
+    "ADC size": number;
     "Delegation Time Taken": number;
     "Delegation Memory Usage": number;
     "Delegation CPU Usage": number;

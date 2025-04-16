@@ -8,5 +8,5 @@ allow if {
     input.credentialSubject.attributes.keyType
 
     # check if algorithm is credentialId
-    input.credentialSubject.attributes.credentialId
+    input.credentialSubject.credentialId
 }

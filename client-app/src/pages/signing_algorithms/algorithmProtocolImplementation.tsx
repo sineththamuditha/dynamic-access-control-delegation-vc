@@ -18,18 +18,29 @@ import React from "react";
 import Papa from "papaparse";
 import { didKeyAgent, getKeyDid } from "../../agents/didKeyAgent";
 import { issueCrednetialsByIssuer } from "./flows/issueCredentialsByIssuer";
-import { credentialServerApiClient } from "../../configs/axiosConfig";
+import {
+  credentialServerApiClient,
+  flaskServerApiClient,
+} from "../../configs/axiosConfig";
 import { AxiosResponse } from "axios";
 
 interface ED25519Props {
-  keyType: "Ed25519" | "Secp256k1";
+  keyType: "ed25519" | "secp256k1" | "p256";
+}
+
+interface IssuingResponse {
+  delegateeCredential: VerifiableCredential;
+  delegatorCredential: VerifiableCredential;
 }
 
 interface DelegationResponse {
   accessDelegationCredential: VerifiableCredential;
-  timeTaken: number;
-  memoryUsage: number;
-  cpuUsage: number;
+  delegation: {
+    adcSize: number;
+    timeTaken: number;
+    memoryUsage: number;
+    cpuUsage: number;
+  };
 }
 
 interface VerificationResponse {
@@ -90,69 +101,33 @@ const AlgorithmProtocolImplementation: React.FC<ED25519Props> = ({
     }));
   };
 
-  const addIdentifier: (
-    identifier: IIdentifier,
-    identifierKey: string
-  ) => void = (identifier: IIdentifier, identifierKey: string) => {
-    setDidIdentifiers((prevIdentifiers) => ({
-      ...prevIdentifiers,
-      [identifierKey]: identifier,
-    }));
-  };
-
   const goBackToMainPage = () => {
     setPage(Page.MAIN_PAGE);
   };
 
   useEffect(() => {
-    getKeyDid(DELEGATEE_IDENTIFIER_KEY, keyType).then(
-      (identifier: IIdentifier) => {
-        addIdentifier(identifier, DELEGATEE_IDENTIFIER_KEY);
-      }
-    );
-    getKeyDid(DELEGATOR_IDENTIFIER_KEY, keyType).then(
-      (identifier: IIdentifier) => {
-        addIdentifier(identifier, DELEGATOR_IDENTIFIER_KEY);
-      }
-    );
-    getKeyDid(ISSUER_IDENTIFIER_KEY, keyType).then(
-      (identifier: IIdentifier) => {
-        addIdentifier(identifier, ISSUER_IDENTIFIER_KEY);
-      }
-    );
+    flaskServerApiClient
+      .get(`/initialise/${keyType}`)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        throw new Error("Initialization Failed");
+      });
   }, []);
 
   const issueCredential: () => Promise<void> = async () => {
     try {
-      const response: AxiosResponse<{ delegatorIdentifier: string }> =
-        await credentialServerApiClient.post<{ delegatorIdentifier: string }>(
-          "/initialize-delegator",
-          {
-            keyType,
-          }
-        );
+      const response: AxiosResponse<IssuingResponse> =
+        await flaskServerApiClient.get(`/issue/${keyType}`);
 
-      console.log(didIdentifiers[ISSUER_IDENTIFIER_KEY]);
+      setJson(response.data.delegateeCredential);
 
-      const { delegateeCredential, delegatorCredential } =
-        await issueCrednetialsByIssuer(
-          didIdentifiers[ISSUER_IDENTIFIER_KEY],
-          didIdentifiers[DELEGATEE_IDENTIFIER_KEY],
-          response.data.delegatorIdentifier,
-          keyType
-        );
-
-      addIssuedCredential(delegateeCredential, DELEGATEE_CREDENTIAL_KEY);
-
-      try {
-        await credentialServerApiClient.post<{ message: string }>(
-          "/performance-credential/set",
-          delegatorCredential
-        );
-      } catch (err) {
-        console.log(err);
-        throw new Error("Credential uploading failed");
-      }
+      addIssuedCredential(
+        response.data.delegateeCredential,
+        DELEGATEE_CREDENTIAL_KEY
+      );
     } catch (err) {
       console.log(err);
       throw new Error("DID Creation failed");
@@ -160,30 +135,20 @@ const AlgorithmProtocolImplementation: React.FC<ED25519Props> = ({
   };
 
   const delegateCredential = async () => {
-    const vpForADC: VerifiablePresentation =
-      await didKeyAgent.createVerifiablePresentation({
-        presentation: {
-          holder: didIdentifiers[DELEGATEE_IDENTIFIER_KEY].did,
-          verifiableCredential: [issuedCredential[DELEGATEE_CREDENTIAL_KEY]],
-        },
-        proofFormat: "jwt",
-      });
-
     try {
       const response: AxiosResponse<DelegationResponse> =
-        await credentialServerApiClient.post<DelegationResponse>(
-          "/performance-credential/get-adc",
-          vpForADC
-        );
+        await flaskServerApiClient.post(`/delegate/${keyType}`, {
+          verifiableCredentials: [issuedCredential[DELEGATEE_CREDENTIAL_KEY]],
+        });
 
-      console.log(response.data);
+        console.log(response.data)
 
       addIssuedCredential(
         response.data.accessDelegationCredential,
         ACCESS_DELEGATION_CREDENTIAL_KEY
       );
 
-      console.log(issuedCredential);
+      setJson(response.data.accessDelegationCredential);
     } catch (err) {
       console.log(err);
       throw new Error("Delegation Failed");
@@ -191,24 +156,13 @@ const AlgorithmProtocolImplementation: React.FC<ED25519Props> = ({
   };
 
   const verifyCredential = async () => {
-    const vpForVerification: VerifiablePresentation =
-      await didKeyAgent.createVerifiablePresentation({
-        presentation: {
-          holder: didIdentifiers[DELEGATEE_IDENTIFIER_KEY].did,
-          verifiableCredential: [
-            issuedCredential[ACCESS_DELEGATION_CREDENTIAL_KEY],
-            issuedCredential[DELEGATEE_CREDENTIAL_KEY],
-          ],
-        },
-        proofFormat: "jwt",
-      });
-
     try {
       const response: AxiosResponse<VerificationResponse> =
-        await credentialServerApiClient.post<VerificationResponse>(
-          "/performance-credential/get",
-          vpForVerification
-        );
+        await flaskServerApiClient.post(`/present/${keyType}`, {
+          verifiableCredentials: [
+            issuedCredential[ACCESS_DELEGATION_CREDENTIAL_KEY],
+          ],
+        });
 
       console.log(response.data);
     } catch (err) {
@@ -220,53 +174,35 @@ const AlgorithmProtocolImplementation: React.FC<ED25519Props> = ({
   const evaluate: () => Promise<void> = async () => {
     issueCredential();
 
-    const vpForADC: VerifiablePresentation =
-      await didKeyAgent.createVerifiablePresentation({
-        presentation: {
-          holder: didIdentifiers[DELEGATEE_IDENTIFIER_KEY].did,
-          verifiableCredential: [issuedCredential[DELEGATEE_CREDENTIAL_KEY]],
-        },
-        proofFormat: "jwt",
-      });
-
     for (let i = 0; i <= 100; i++) {
-
       const delegationResponse: AxiosResponse<DelegationResponse> =
-        await credentialServerApiClient.post<DelegationResponse>(
-          "/performance-credential/get-adc",
-          vpForADC
-        );
-
-
-      const vpForVerification: VerifiablePresentation =
-      await didKeyAgent.createVerifiablePresentation({
-        presentation: {
-          holder: didIdentifiers[DELEGATEE_IDENTIFIER_KEY].did,
-          verifiableCredential: [
-            delegationResponse.data.accessDelegationCredential,
-            issuedCredential[DELEGATEE_CREDENTIAL_KEY],
-          ],
-        },
-        proofFormat: "jwt",
-      });
+        await flaskServerApiClient.post(`/delegate/${keyType}`, {
+          verifiableCredentials: [issuedCredential[DELEGATEE_CREDENTIAL_KEY]],
+        });
 
       const verificationResponse: AxiosResponse<VerificationResponse> =
-        await credentialServerApiClient.post<VerificationResponse>(
-          "/performance-credential/get",
-          vpForVerification
-        );
-
+        await flaskServerApiClient.post(`/present/${keyType}`, {
+          verifiableCredentials: [
+            delegationResponse.data.accessDelegationCredential,
+          ],
+        });
 
       addEvaluationResult({
         Iteration: i,
-        "Delegation Time Taken": delegationResponse.data.timeTaken,
-        "Delegation Memory Usage": delegationResponse.data.memoryUsage,
-        "Delegation CPU Usage": delegationResponse.data.cpuUsage,
-        "Verification Time Taken": verificationResponse.data.verification.timeTaken,
-        "Verification Memory Usage": verificationResponse.data.verification.memoryUsage,
-        "Verification CPU Usage": verificationResponse.data.verification.cpuUsage,
+        "ADC size": delegationResponse.data.delegation.adcSize,
+        "Delegation Time Taken": delegationResponse.data.delegation.timeTaken,
+        "Delegation Memory Usage":
+          delegationResponse.data.delegation.memoryUsage,
+        "Delegation CPU Usage": delegationResponse.data.delegation.cpuUsage,
+        "Verification Time Taken":
+          verificationResponse.data.verification.timeTaken,
+        "Verification Memory Usage":
+          verificationResponse.data.verification.memoryUsage,
+        "Verification CPU Usage":
+          verificationResponse.data.verification.cpuUsage,
         "Retrieval Time Taken": verificationResponse.data.retrieval.timeTaken,
-        "Retrieval Memory Usage": verificationResponse.data.verification.memoryUsage,
+        "Retrieval Memory Usage":
+          verificationResponse.data.verification.memoryUsage,
         "Retrieval CPU Usage": verificationResponse.data.verification.cpuUsage,
       });
     }

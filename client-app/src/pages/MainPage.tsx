@@ -36,6 +36,9 @@ const MainPage: React.FC = () => {
   const changePageToSecp256k1 = () => {
     setPage(Page.SECP256k1);
   };
+  const changePageToP256 = () => {
+    setPage(Page.P256);
+  };
 
   return (
     <div className="upper">
@@ -60,6 +63,7 @@ const MainPage: React.FC = () => {
         </button>
         <button onClick={changePageToED25519}>Ed25519</button>
         <button onClick={changePageToSecp256k1}>Secp256k1</button>
+        <button onClick={changePageToP256}>P-256</button>
       </div>
     </div>
   );

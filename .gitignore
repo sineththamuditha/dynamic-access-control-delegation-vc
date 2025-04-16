@@ -1,3 +1,5 @@
 hyperledger/
 
 client-app/node_modules
+
+.vscode

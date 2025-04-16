@@ -7,5 +7,6 @@ export enum Page {
     PROTOCOL_DOCTOR_NURSE,
     PROTOCOL_EMPLOYEE,
     ED25519,
-    SECP256k1
+    SECP256k1,
+    P256
 }

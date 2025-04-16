@@ -40,10 +40,13 @@ const TwoPageView: React.FC = () => {
         setCurrentPage(<EmployeeProtocol />);
         break;
       case Page.ED25519:
-        setCurrentPage(<AlgorithmImplementation keyType={"Ed25519"} />);
+        setCurrentPage(<AlgorithmImplementation keyType={"ed25519"} />);
         break;
       case Page.SECP256k1:
-        setCurrentPage(<AlgorithmImplementation keyType={"Secp256k1"} />);
+        setCurrentPage(<AlgorithmImplementation keyType={"secp256k1"} />);
+        break;
+      case Page.P256:
+        setCurrentPage(<AlgorithmImplementation keyType="p256" />);
         break;
     }
   }, [page]);

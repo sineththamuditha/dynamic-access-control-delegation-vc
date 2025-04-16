@@ -11,6 +11,7 @@ export const validateEnv = (): void => {
       'REACT_APP_WEB_DID_BASIC_URL',
       'REACT_APP_SERVICE_ENDPOINT_BASE_URL',
       'REACT_APP_INFURA_PROJECT_ID',
+      'REACT_APP_FLASK_BASE_URL'
     ];
     
     const missingVars = requiredEnvVars.filter((key) => !process.env[key]);
